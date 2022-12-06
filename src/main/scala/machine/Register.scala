@@ -1,4 +1,4 @@
 package machine
 
 enum Register:
-  case AC, BR, PS, DR, CR, IP, SP
+  case AC, PS, IP, SP
