@@ -1,5 +1,3 @@
 package exception
 
-class IllegalDataFormatException {
-
-}
+class IllegalDataFormatException(message: String) extends RuntimeException(message)

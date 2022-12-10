@@ -1,7 +1,8 @@
 package machine
 
 class User:
-  private val processor = new Processor
+  private val _processor = new Processor
+  def processor: Processor = _processor
 
   def load(instr: Int, addr: Int): Unit =
     processor.controlUnit.writeIP(addr)
@@ -10,9 +11,10 @@ class User:
     processor.controlUnit.writeIP(start)
     instructions.foreach(processor.controlUnit.input)
 
-//  def get(addr: Int): Int =
-//    processor.controlUnit.writeIP(addr)
-//    processor.controlUnit.output()
-    
-    
+  def run(ip: Int): Unit = _processor.startProgram(ip)
+
+  def get(): List[Int] =
+    processor.memory.buffer
+
+
 

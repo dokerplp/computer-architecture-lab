@@ -8,18 +8,11 @@ import scala.collection.mutable.ArrayBuffer as MutableList
 import scala.collection.mutable.Map as MutableMap
 import scala.math._
 
-class Memory(val stackSize: Int = DEFAULT_STACK_SIZE, wordSize: Int = DEFAULT_WORD_SIZE):
-  if (stackSize < MIN_STACK_SIZE) throw new IllegalMemoryFormatException("Stack size must be greater or equals to 100")
-  if (wordSize < MIN_WORD_BIT_DEPTH || wordSize > MAX_WORD_BIT_DEPTH) throw new IllegalMemoryFormatException("Word size must be between 8 and 32")
-
-  val maxWord: Int = (pow(2, wordSize - 1) - 1).toInt
-  val minWord: Int = (-pow(2, wordSize - 1)).toInt
-  val maxAddr: Int = stackSize - 1
-
-  private val stack: MutableList[Int] = MutableList.tabulate(stackSize)(_ => WORD_INIT)
+class Memory:
+  private val stack: MutableList[Int] = MutableList.tabulate(STACK_SIZE)(_ => WORD_INIT)
   private val registers: MutableMap[Register, Int] = MutableMap() ++ Register.values.map(r => (r, WORD_INIT)).toMap
   
-  val buffer: MutableList[Int] = MutableList()
+  var buffer: List[Int] = List()
 
   val reg = new Reg
   val mem = new Mem
@@ -58,12 +51,12 @@ class Memory(val stackSize: Int = DEFAULT_STACK_SIZE, wordSize: Int = DEFAULT_WO
 
 object Memory:
 
-  private val DEFAULT_STACK_SIZE = 2048
-  private val DEFAULT_WORD_SIZE = 16
-  private val MIN_STACK_SIZE = 100
-  private val MIN_WORD_BIT_DEPTH = 8
-  private val MAX_WORD_BIT_DEPTH = 32
+  private val STACK_SIZE = 2048
+  private val WORD_SIZE = 16
   private val WORD_INIT = 0
+  val MAX_WORD: Int = (pow(2, WORD_SIZE - 1) - 1).toInt
+  val MIN_WORD: Int = (-pow(2, WORD_SIZE - 1)).toInt
+  val MAX_ADDR: Int = STACK_SIZE - 1
 
   enum Register:
     case AC, ZR, DR, IP, CR, AR, IN

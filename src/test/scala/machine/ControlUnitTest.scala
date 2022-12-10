@@ -35,7 +35,7 @@ class ControlUnitTest extends AnyFunSuite
     }
 
     assertThrows[IllegalAddressException] {
-      unit.writeIP(memory.maxAddr + 1)
+      unit.writeIP(Memory.MAX_ADDR + 1)
     }
   }
 
@@ -229,6 +229,43 @@ class ControlUnitTest extends AnyFunSuite
     spyUnit.input(0)
 
     assert(memory.buffer.toList == List(0, 1, 2, 3))
+  }
+
+  test("ZR test") {
+    val spyUnit = spy(unit)
+    doNothing().when(spyUnit).commandFetch()
+
+    memory.reg(AC) = 12
+    memory.reg(DR) = 6
+
+    spyUnit.sub()
+    assert(memory.reg(ZR) == 0)
+
+    spyUnit.sub()
+    assert(memory.reg(ZR) == 1)
+  }
+
+  test("fix value test") {
+    val spyUnit = spy(unit)
+    doNothing().when(spyUnit).commandFetch()
+
+    memory.reg(AC) = Memory.MAX_WORD
+    spyUnit.inc()
+    assert(memory.reg(AC) == Memory.MIN_WORD)
+
+    memory.reg(AC) = Memory.MIN_WORD
+    spyUnit.dec()
+    assert(memory.reg(AC) == Memory.MAX_WORD)
+  }
+
+  test("fix address test") {
+    val spyUnit = spy(unit)
+    doNothing().when(spyUnit).commandFetch()
+
+    memory.reg(IP) = Memory.MAX_ADDR
+    spyUnit.input(0)
+
+    assert(memory.reg(IP) == 0)
   }
 
 }
