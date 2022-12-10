@@ -5,9 +5,9 @@ alg | acc | neum | hw | instr | struct | stream | port | prob2
 alg - java-like language
 acc - commands use accumulator
 neum - data and commands in one stack
-hw -
+hw - control unit is a part of the model
 instr - each commands executes in one tact
-struct - result of translation is json
+binary - instruction is a 16 bit word
 stream - no interruptions
 port -
 */

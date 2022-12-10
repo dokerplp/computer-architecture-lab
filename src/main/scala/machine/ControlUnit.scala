@@ -30,11 +30,8 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory):
     memory.mem(memory.reg(AR)) = memory.reg(DR)
     tg.tick()
 
-  def getAddr(instr: Int): Int =
-    instr & 0x0FFF // word size is hardcoded, word size is 16 bit, first 4 bit - command, last 12 bit - address
-
   def operandFetch(): Unit =
-    memory.reg(DR) = getAddr(memory.reg(DR))
+    memory.reg(DR) = addr(memory.reg(DR))
     tg.tick()
     memory.reg(AR) = memory.reg(DR)
     tg.tick()
@@ -111,10 +108,9 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory):
 
   //ST -> 0x5xxx
   def st(): Unit =
-    memory.reg(DR) = getAddr(memory.reg(DR))
+    memory.reg(DR) = addr(memory.reg(DR))
     tg.tick()
     memory.reg(AR) = memory.reg(DR)
-    tg.tick()
     memory.reg(DR) = memory.reg(AC)
     tg.tick()
     memory.mem(memory.reg(AR)) = memory.reg(DR)
@@ -124,8 +120,7 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory):
 
   //JUMP -> 0x6xxx
   def jump(): Unit =
-    memory.reg(DR) = getAddr(memory.reg(DR))
-    tg.tick()
+    memory.reg(DR) = addr(memory.reg(DR))
     memory.reg(IP) = memory.reg(DR)
     tg.tick()
 
@@ -171,6 +166,8 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory):
     commandFetch()
 
 object ControlUnit:
+
+  def addr(instr: Int): Int = instr & 0x0FFF
   def mask(x: Int): Int = x & 0x0000FFFF
 
   def fixVal(x: Int): Int =
