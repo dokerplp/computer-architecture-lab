@@ -1,4 +1,3 @@
-import machine.{Hardware, AddressCommands, Register}
 
 /*
 alg | acc | neum | hw | instr | struct | stream | port | prob2
@@ -14,7 +13,6 @@ port -
 */
 object Main {
   def main(args: Array[String]): Unit = {
-    val hardware = new Hardware()
-    val instruction = new AddressCommands(hardware)
+
   }
 }

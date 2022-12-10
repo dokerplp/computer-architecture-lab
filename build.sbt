@@ -6,3 +6,10 @@ lazy val root = (project in file("."))
   .settings(
     name := "architecture"
   )
+
+  libraryDependencies ++= Seq(
+    "org.scalatestplus" %% "mockito-3-4" % "3.2.10.0" % Test,
+    "org.scalatest" %% "scalatest" % "3.2.14" % Test
+  )
+
+
