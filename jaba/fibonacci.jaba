@@ -1,0 +1,8 @@
+int x = 1
+int y = 1
+int n = 5
+while (n) {
+    int t = x
+    x = y
+    y += t
+}

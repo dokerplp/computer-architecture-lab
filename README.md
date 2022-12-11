@@ -15,6 +15,47 @@
 
 ## Язык
 
+### BNF
+
+`<program> ::= <term>`
+
+`<term> ::= <variable initialization> | <while loop> | <print function> | <term> <term>`
+
+`<variable initialization> ::= <type> <name> = <value>`
+
+`<type> ::= int | string`
+
+`<name> ::= [a-zA-Z]+`
+
+`<value> ::= <int> | <string>`
+
+`<int> ::= 32-х битное число`
+
+`<string> ::= массив 16-и битных чисел`
+
+`<while loop> ::= while (<name>) { <term> }` (цикл выполняется пока переменная больше 0, после каждой итерации значение переменной уменьшается на 1)
+
+`<operation> ::= + | - `
+
+`<name.1> += <name.2> ::= <name.1> = <name.1> + <name.2>`
+
+`<name.1> -= <name.2> ::= <name.1> = <name.1> - <name.2>`
+
+
+### Пример
+
+```java
+int x = 1
+int y = 1
+int n = 5
+while (n) {
+    int t = x
+    x = y
+    y += t    
+}
+```
+
+
 ### Набор инструкций
 
 | Syntax | Mnemonic | Кол-во тактов  | Циклы                                | Comment                                                     |
@@ -30,7 +71,7 @@
 | `F200` | CLA      | 1              | Command<br/> Execution               | 0 -> AC; 1 -> ZR                                            |
 | `F300` | INC      | 1              | Command<br/> Execution               | AC + 1 -> AC; set ZR                                        |
 | `F400` | DEC      | 1              | Command<br/> Execution               | AC - 1 -> AC; set ZR                                        | 
-| `F500` | OUT      | 1              | Command<br/> Execution               | write to buffer                                             |
+| `F500` | OUT      | 1              | Command<br/> Execution               | AC -> IO                                                    |
 
 ### Циклы
 

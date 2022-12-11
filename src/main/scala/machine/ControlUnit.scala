@@ -49,10 +49,12 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory):
   def operandFetch(): Unit =
     memory.reg(DR) = addr(memory.reg(DR))
     tg.tick()
-    memory.reg(AR) = memory.reg(DR)
-    tg.tick()
-    memory.reg(DR) = memory.mem(memory.reg(AR))
-    tg.tick()
+    if (bit(memory.reg(DR), 11) == 0) {
+      memory.reg(AR) = memory.reg(DR)
+      tg.tick()
+      memory.reg(DR) = memory.mem(memory.reg(AR))
+      tg.tick()
+    }
 
   def commandFetch(): Unit =
     //stage 1: instr -> CR
@@ -196,7 +198,9 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory):
     commandFetch()
 
 object ControlUnit:
-  def addr(instr: Int): Int = instr & 0x0FFF
+
+  private def bit(instr: Int, n: Int) = (instr << n) & 1
+  def addr(instr: Int): Int = instr & 0x07FF
   def mask(x: Int): Int = x & 0x0000FFFF
 
   private def fixVal(x: Int): Int =
@@ -223,6 +227,7 @@ object ControlUnit:
     case JZ extends AddressCommands("""7\w\w\w""".r, "7")
 
     def apply(addr: Int): Int = fixVal(Integer.parseInt(s"${com}000", 16) + addr)
+    def direct(value: Int): Int = fixVal(Integer.parseInt(s"${com}800", 16) + value)
 
   enum UnaddressedCommands(val com: String):
     case HLT extends UnaddressedCommands("F100")
