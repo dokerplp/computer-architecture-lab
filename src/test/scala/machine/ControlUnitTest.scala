@@ -53,7 +53,7 @@ class ControlUnitTest extends AnyFunSuite
 
   test("get addr from word test") {
     val instr = 0x2113
-    assert(unit.getAddr(instr) == 0x113)
+    assert(ControlUnit.addr(instr) == 0x113)
   }
 
   test("operand fetch test") {
@@ -219,16 +219,16 @@ class ControlUnitTest extends AnyFunSuite
     memory.mem(2) = 2
     memory.mem(3) = 3
 
-    spyUnit.output()
+    spyUnit.out()
     spyUnit.input(0)
-    spyUnit.output()
+    spyUnit.out()
     spyUnit.input(0)
-    spyUnit.output()
+    spyUnit.out()
     spyUnit.input(0)
-    spyUnit.output()
+    spyUnit.out()
     spyUnit.input(0)
 
-    assert(memory.buffer.toList == List(0, 1, 2, 3))
+    assert(unit.buffer == List(0, 1, 2, 3))
   }
 
   test("ZR test") {

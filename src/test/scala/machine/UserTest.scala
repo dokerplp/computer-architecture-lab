@@ -19,18 +19,23 @@ class UserTest extends AnyFunSuite {
 
   test("fibonacci nums test") {
 
+    //(value, address)
     val t = (0, 0)
     val x1 = (1, 1)
     val x2 = (1, 2)
     val n = (5, 3)
-    val loop = (-1, 4)
-    val end = (-1, 17)
+    val loop = (-1, 8)
+    val end = (-1, 22)
 
     val program = List (
       t._1,
       x1._1,
       x2._1,
       n._1,
+      LD(x1._2),
+      OUT(),
+      LD(x2._2),
+      OUT(),
       LOOP(n._2),
       JUMP(end._2),
       LD(x1._2),
@@ -40,6 +45,7 @@ class UserTest extends AnyFunSuite {
       LD(x2._2),
       ADD(t._2),
       ST(x2._2),
+      OUT(),
       LD(n._2),
       DEC(),
       ST(n._2),
@@ -54,5 +60,9 @@ class UserTest extends AnyFunSuite {
     }
 
     assert(user.processor.memory.mem(x2._2) == 13)
+
+    assert(user.processor.buffer == List(1, 1, 2, 3, 5, 8, 13))
+
+    println(user.processor.log)
   }
 }

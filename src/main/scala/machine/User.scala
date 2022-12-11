@@ -13,8 +13,5 @@ class User:
 
   def run(ip: Int): Unit = _processor.startProgram(ip)
 
-  def get(): List[Int] =
-    processor.memory.buffer
-
 
 

@@ -1,6 +1,5 @@
 package machine
 
-import exception.IllegalMemoryFormatException
 import machine.Memory._
 
 import scala.annotation.targetName
@@ -10,10 +9,8 @@ import scala.math._
 
 class Memory:
   private val stack: MutableList[Int] = MutableList.tabulate(STACK_SIZE)(_ => WORD_INIT)
-  private val registers: MutableMap[Register, Int] = MutableMap() ++ Register.values.map(r => (r, WORD_INIT)).toMap
+  val registers: MutableMap[Register, Int] = MutableMap() ++ Register.values.map(r => (r, WORD_INIT)).toMap
   
-  var buffer: List[Int] = List()
-
   val reg = new Reg
   val mem = new Mem
 
@@ -59,7 +56,7 @@ object Memory:
   val MAX_ADDR: Int = STACK_SIZE - 1
 
   enum Register:
-    case AC, ZR, DR, IP, CR, AR, IN
+    case AC, ZR, DR, IP, CR, AR, IO
 
 
 
