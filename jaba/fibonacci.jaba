@@ -4,5 +4,6 @@ int n = 5
 while (n) {
     int t = x
     x = y
-    y += t
+    y = y + t
+    
 }

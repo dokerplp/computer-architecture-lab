@@ -12,4 +12,6 @@ lazy val root = (project in file("."))
     "org.scalatest" %% "scalatest" % "3.2.14" % Test
   )
 
+  libraryDependencies += "org.mozilla" % "rhino" % "1.7.14"
+
 
