@@ -8,17 +8,18 @@ enum AddressedCommand(_mnemonic: String, _binary: String):
   case ST extends AddressedCommand("ST", "5")
   case JUMP extends AddressedCommand("JUMP", "6")
   case JZ extends AddressedCommand("JZ", "7")
-  
+
   def apply(label: String, _type: AddressedCommand.Type): String = mnemonic(label, _type)
   def mnemonic(label: String, _type: AddressedCommand.Type): String =
     _type match
       case AddressedCommand.Type.ADDR => s"$_mnemonic $$$label"
       case AddressedCommand.Type.DIRECT => s"$_mnemonic #$label"
+      case AddressedCommand.Type.RELATIVE => s"$_mnemonic ($label)"
 
 object AddressedCommand:
-  
+
   enum Type:
-    case ADDR, DIRECT
+    case ADDR, DIRECT, RELATIVE
 
 //  private val ADDR = """([A-Z]+)\s+\$(\w+)""".r
 //  private val DIRECT = """([A-Z]+)\s+#(\w+)""".r
