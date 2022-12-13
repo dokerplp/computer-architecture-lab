@@ -12,107 +12,104 @@ import org.mozilla.javascript.Token
 import scala.collection.mutable.ArrayBuffer as MutableList
 import scala.collection.mutable.Map as MutableMap
 import exception.TranslationException
-import machine.ControlUnit.AddressCommands.*
-import machine.ControlUnit.UnaddressedCommands.*
+import machine.AddressedCommand.*
+import machine.AddressedCommand.Type.*
+import machine.UnaddressedCommand.*
+import translator.Translator2.label
+
+import scala.annotation.tailrec
 
 class Translator2:
   private val nums: MutableMap[String, Int] = MutableMap()
   private val strings: MutableMap[String, String] = MutableMap()
-  private val addrs: MutableMap[String, Int] = MutableMap()
-  private val prog: MutableList[Int] = MutableList()
+  private val prog: MutableList[String] = MutableList()
+  private var loops = 0
+
+  def progAdd(s: String*): Unit = prog.addAll(s.toList)
 
   def variable(v: VariableInitializer): Unit =
-    val target = v.getTarget
-    val initializer = v.getInitializer
-    val name = target.getType match
-      case Token.NAME => target.asInstanceOf[Name].getIdentifier
+    val name = v.getTarget match
+      case n: Name => n.getIdentifier
       case _ => throw new TranslationException("WTF")
-    initializer.getType match
-      case Token.NUMBER => val v = initializer.asInstanceOf[NumberLiteral].getNumber.toInt; nums(name) = v
-      case Token.NAME =>
-        val n = initializer.asInstanceOf[Name].getIdentifier
-        if (nums.contains(n)) nums(name) = nums(n)
-        else if (strings.contains(n)) strings(name) = strings(n)
+    v.getInitializer match
+      case n: NumberLiteral => nums(name) = n.getNumber.toInt
+      case n: Name =>
+        val id = n.getIdentifier
+        if (nums.contains(id)) nums(name) = nums(id)
+        else if (strings.contains(id)) strings(name) = strings(id)
         else throw new TranslationException("WTF")
       case _ => throw new TranslationException("WTF")
 
   def loop(l: WhileLoop): Unit =
-    val cond = l.getCondition.asInstanceOf[Name].getIdentifier
-    if (!nums.contains(cond)) throw new TranslationException("WTF")
-    val start = prog.length
-    prog.addOne(LOOP(addrs(cond)))
-    prog.addOne(0)
+    loops += 1
+    val condLabel = l.getCondition.asInstanceOf[Name].getIdentifier
+    val loopLabel = s"loop$loops"
+    val endLabel = s"end$loops"
+    progAdd (
+      label(loopLabel, LOOP(condLabel, ADDR)),
+      JUMP(endLabel, ADDR)
+    )
     l.getBody.forEach(parseTree)
-    prog.addOne(JUMP(start))
-    prog(start + 1) = prog.length
+    progAdd (
+      JUMP.mnemonic(loopLabel, ADDR),
+      label(endLabel, NULL())
+    )
 
   def expression(expr: InfixExpression): Unit =
     println()
-  def expression(expr: UpdateExpression): Unit =
-    val operand = expr.getOperand.asInstanceOf[Name].getIdentifier
-    if (!nums.contains(operand)) throw new TranslationException("WTF")
-    val opAddr = addrs(operand)
-    expr.getType match
-      case Token.INC => prog.addAll(List(LD(opAddr), INC(), ST(opAddr)))
-      case Token.DEC => prog.addAll(List(LD(opAddr), DEC(), ST(opAddr)))
-  def expression(expr: Assignment): Unit =
-    val left = expr.getLeft.asInstanceOf[Name].getIdentifier
-    if (!nums.contains(left)) throw new TranslationException("WTF")
-    val leftAddr = addrs(left)
 
+  def expression(expr: UpdateExpression): Unit =
+    val operandLabel = expr.getOperand.asInstanceOf[Name].getIdentifier
+    progAdd(LD(operandLabel, ADDR))
+    expr.getType match
+      case Token.INC => prog.addOne(INC.mnemonic())
+      case Token.DEC => prog.addOne(DEC.mnemonic())
+    progAdd(ST(operandLabel, ADDR))
+
+  def expression(expr: Assignment): Unit =
+    val leftLabel = expr.getLeft.asInstanceOf[Name].getIdentifier
     expr.getRight match
-      case name: Name =>
-        val right = name.getIdentifier
-        if (!nums.contains(right)) throw new TranslationException("WTF")
-        val rightAddr = addrs(right)
+      case n: (Name | NumberLiteral) =>
+        val (_type, rightLabel) = n match
+          case na: Name => (ADDR, na.getIdentifier)
+          case nu: NumberLiteral => (DIRECT, nu.getValue)
         expr.getType match
-          case Token.ASSIGN => prog.addOne(LD(rightAddr))
-          case Token.ASSIGN_ADD => prog.addAll(List(LD(leftAddr), ADD(rightAddr)))
-          case Token.ASSIGN_SUB => prog.addAll(List(LD(leftAddr), SUB(rightAddr)))
-          case _ => throw new TranslationException("WTF")
-      case number: NumberLiteral =>
-        val value = number.getNumber.toInt
-        expr.getType match
-          case Token.ASSIGN => prog.addOne(LD.direct(value))
-          case Token.ASSIGN_ADD => prog.addAll(List(LD(leftAddr), ADD.direct(value)))
-          case Token.ASSIGN_SUB => prog.addAll(List(LD(leftAddr), SUB.direct(value)))
+          case Token.ASSIGN => progAdd(LD(rightLabel, _type))
+          case Token.ASSIGN_ADD => progAdd(LD(leftLabel, _type), ADD(rightLabel, _type))
+          case Token.ASSIGN_SUB => progAdd(LD(leftLabel, _type), SUB(rightLabel, _type))
           case _ => throw new TranslationException("WTF")
       case infixExpression: InfixExpression => expression(infixExpression)
 
-    prog.addOne(ST(leftAddr))
+    progAdd(ST(leftLabel, ADDR))
 
   def parseTree(n: Node): Unit =
-    n.getType match
-      case Token.SCRIPT => n.forEach(parseTree)
-      case Token.WHILE => val l = n.asInstanceOf[WhileLoop]; loop(l)
-      case Token.EXPR_RESULT =>
-        n.asInstanceOf[ExpressionStatement].getExpression match
-          case assignment: Assignment => expression(assignment)
-          case updateExpression: UpdateExpression => expression(updateExpression)
+    n match
+      case a: AstRoot => a.forEach(parseTree)
+      case w: WhileLoop => loop(w)
+      case e: ExpressionStatement =>
+        e.getExpression match
+          case a: Assignment => expression(a)
+          case u: UpdateExpression => expression(u)
           case _ => throw new TranslationException("WTF")
-      case Token.VAR => ()
+      case v: VariableDeclaration => ()
       case _ => throw new TranslationException("WTF")
 
 
   //set addresses for taken variables
-  def setAddresses(): Unit =
-    for (v <- nums) {
-      addrs(v._1) = prog.length
-      prog.addOne(v._2)
-    }
-    for (v <- strings) {
-      addrs(v._1) = prog.length
-      for (c <- v._2) prog.addOne(c.toInt)
-      prog.addOne(0)
+  private def setVariables(): Unit =
+    def char(c: Char): String = c.toInt.toHexString.toUpperCase
+    nums.foreach (v => prog.addOne(s"${v._1}: ${v._2}"))
+    strings.foreach { s =>
+      prog.addOne(s"${s._1}: ${char(s._2.charAt(0))}")
+      s._2.substring(1).foreach(c => prog.addOne(char(c)))
     }
 
-  //take all variables
-  def takeVariables(n: Node): Unit =
-    n.getType match
-      case Token.SCRIPT => n.forEach(takeVariables)
-      case Token.VAR => n.asInstanceOf[VariableDeclaration].getVariables.forEach(variable)
-      case Token.WHILE => takeVariables(n.asInstanceOf[WhileLoop].getBody)
-      case Token.BLOCK => n.asInstanceOf[Scope].forEach(takeVariables)
+  private def takeVariables(n: Node): Unit =
+    n match
+      case a: AstRoot => a.forEach(takeVariables)
+      case v: VariableDeclaration => v.getVariables.forEach(variable)
+      case w: WhileLoop => takeVariables(w.getBody)
+      case s: Scope => s.forEach(takeVariables)
       case _ => ()
 
 
@@ -127,8 +124,17 @@ class Translator2:
     val astRoot = parser.parse(lines, null, 1)
 
     takeVariables(astRoot)
-    setAddresses()
+    setVariables()
     parseTree(astRoot)
 
+    prog.addOne(HLT.mnemonic())
+    println(prog.mkString("\n"))
+
     src.close
+
+
+object Translator2:
+
+  def label(lab: String, body: String): String =
+    s"$lab: $body"
 

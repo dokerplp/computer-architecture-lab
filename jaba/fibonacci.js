@@ -1,2 +1,9 @@
 var x = 1
-x = 7
+var y = 1
+var n = 5
+while (n) {
+    var t = x
+    x = y
+    y += t
+    n--
+}

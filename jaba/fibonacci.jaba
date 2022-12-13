@@ -1,9 +1,9 @@
-int x = 1
-int y = 1
-int n = 5
+var x = 1
+var y = 1
+var n = 5
 while (n) {
-    int t = x
+    var t = x
     x = y
-    y = y + t
-    
+    y += t
+    n--
 }

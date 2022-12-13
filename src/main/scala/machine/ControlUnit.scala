@@ -225,10 +225,11 @@ object ControlUnit:
     case ST extends AddressCommands("""5\w\w\w""".r, "5")
     case JUMP extends AddressCommands("""6\w\w\w""".r, "6")
     case JZ extends AddressCommands("""7\w\w\w""".r, "7")
+    
 
     def apply(addr: Int): Int = fixVal(Integer.parseInt(s"${com}000", 16) + addr)
     def direct(value: Int): Int = fixVal(Integer.parseInt(s"${com}800", 16) + value)
-
+  
   enum UnaddressedCommands(val com: String):
     case HLT extends UnaddressedCommands("F100")
     case CLA extends UnaddressedCommands("F200")

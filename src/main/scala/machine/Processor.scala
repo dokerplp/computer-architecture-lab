@@ -8,10 +8,8 @@ private class Processor {
   val memory: Memory = new Memory
   val tg: TactGenerator = new TactGenerator
   val controlUnit = new ControlUnit(tg, memory)
-
-  //AC, ZR, DR, IP, CR, AR
+  
   def log: String = {
-
     @tailrec
     def zeros(s: String): String =
       if (s.length < 4) zeros("0" + s)
