@@ -21,6 +21,9 @@ class Translator:
   private val program: MutableList[String] = MutableList()
   private var loops = 0
 
+  private def lBegin = s"loop$loops"
+  private def lEnd = s"end$loops"
+  
   def translate(input: String, output: String): Unit =
     val src = Source.fromFile(input)
     val lines = src.getLines().toList.mkString("\n")
@@ -41,10 +44,6 @@ class Translator:
     Files.write(Paths.get(output), program.mkString("\n").getBytes(StandardCharsets.UTF_8))
 
     src.close
-
-  private def lBegin = s"loop$loops"
-
-  private def lEnd = s"end$loops"
 
   private def variable(v: VariableInitializer): Unit =
     val name = v.getTarget.asInstanceOf[Name].getIdentifier

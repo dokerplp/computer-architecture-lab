@@ -1,5 +1,7 @@
 package machine
 
+import util.Binary.hex
+import exception.TranslationException
 import machine.AddressedCommand.Type
 import machine.AddressedCommand.Type.*
 
@@ -12,19 +14,19 @@ enum AddressedCommand(val mnemonic: String, val binary: Character):
   case JUMP extends AddressedCommand("JUMP", '6')
   case JZ extends AddressedCommand("JZ", '7')
 
-  def apply(label: String, _type: AddressedCommand.Type): String =
+  def apply(label: String, _type: Type): String =
     _type match
-      case AddressedCommand.Type.ABSOLUTE => s"$mnemonic $$$label"
-      case AddressedCommand.Type.DIRECT => s"$mnemonic #$label"
-      case AddressedCommand.Type.RELATIVE => s"$mnemonic ($label)"
+      case ABSOLUTE => s"$mnemonic $$$label"
+      case DIRECT => s"$mnemonic #$label"
+      case RELATIVE => s"$mnemonic ($label)"
 
   def toBinary(_type: Type, arg: Int): Int =
-    val left = _type match
-      case ABSOLUTE => Integer.parseInt(s"${binary}000", 16)
-      case DIRECT => Integer.parseInt(s"${binary}800", 16)
-      case RELATIVE => Integer.parseInt(s"${binary}C00", 16)
-    val res = left + arg
-    if (res > Memory.MAX_WORD || res < Memory.MIN_WORD) throw new RuntimeException() else res
+    val com = _type match
+      case ABSOLUTE => hex(s"${binary}000")
+      case DIRECT => hex(s"${binary}800")
+      case RELATIVE => hex(s"${binary}C00")
+    val instr = com + arg
+    if (instr > Memory.MAX_WORD || instr < Memory.MIN_WORD) throw new TranslationException("Instruction doesn't match word format") else instr
 
 object AddressedCommand:
 

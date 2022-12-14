@@ -7,6 +7,7 @@ class User:
   def load(instr: Int, addr: Int): Unit =
     device.IO = addr
     processor.controlUnit.writeIP()
+    device.IO = instr
     processor.controlUnit.input()
 
   def load(instructions: List[Int], start: Int): Unit =

@@ -16,9 +16,9 @@ class Memory:
   private val memory: MutableList[Int] = MutableList.tabulate(MEMORY_SIZE)(_ => WORD_INIT)
   private var _zero = false
 
-  def zero = _zero
+  def zero: Boolean = _zero
 
-  def setFlag(): Unit = _zero = dataRegisters(AC) == 0
+  private def setFlag(): Unit = _zero = dataRegisters(AC) == 0
 
   class Reg:
     @targetName("registerSubOne")
@@ -72,7 +72,7 @@ object Memory:
 
   val MAX_WORD: Int = (pow(2, WORD_SIZE - 1) - 1).toInt
   val MIN_WORD: Int = (-pow(2, WORD_SIZE - 1)).toInt
-  val MAX_ADDR: Int = MEMORY_SIZE - 1
+  private val MAX_ADDR: Int = MEMORY_SIZE - 1
   private val MEMORY_SIZE = 2048
   private val WORD_SIZE = 16
   private val WORD_INIT = 0

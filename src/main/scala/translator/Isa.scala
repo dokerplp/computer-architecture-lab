@@ -3,6 +3,7 @@ package translator
 import exception.HLTException
 import machine.AddressedCommand.Type.*
 import machine.{AddressedCommand, UnaddressedCommand, User}
+import util.Binary.hex
 
 import scala.annotation.tailrec
 import scala.collection.mutable.{ArrayBuffer as MutableList, Map as MutableMap}
@@ -50,7 +51,7 @@ class Isa:
     if (lines.nonEmpty) {
       lines.head match
         case addressedCommandRegex("ORG", arg) =>
-          addr = Integer.parseInt(arg, 16)
+          addr = hex(arg)
           setLabels(lines.tail, addr)
         case labelRegex(l) =>
           labels(l) = address
@@ -68,7 +69,7 @@ class Isa:
       case unaddressedCommandOrDataRegex(_, com) =>
         val un = UnaddressedCommand.parse(com)
         if (un.isDefined) parse(lines.tail, instructions :+ un.get.toBinary)
-        else if (hexRegex.matches(com)) parse(lines.tail, instructions :+ Integer.parseInt(com, 16))
+        else if (hexRegex.matches(com)) parse(lines.tail, instructions :+ hex(com))
         else parse(lines.tail, instructions :+ labels(com))
       case _ => parse(lines.tail, instructions)
 

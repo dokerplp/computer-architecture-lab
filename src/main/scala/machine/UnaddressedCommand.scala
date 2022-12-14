@@ -1,5 +1,7 @@
 package machine
 
+import util.Binary.hex
+
 enum UnaddressedCommand(val mnemonic: String, val binary: String):
   case NULL extends UnaddressedCommand("NULL", "F000")
   case HLT extends UnaddressedCommand("HLT", "F100")
@@ -11,7 +13,7 @@ enum UnaddressedCommand(val mnemonic: String, val binary: String):
 
   def apply(): String = mnemonic
 
-  def toBinary: Int = Integer.parseInt(binary, 16)
+  def toBinary: Int = hex(binary)
 
 
 object UnaddressedCommand:
