@@ -1,7 +1,7 @@
 package machine
 
-import Memory.AddrRegister._
-import Memory.DataRegister._
+import machine.Memory.AddrRegister.*
+import machine.Memory.DataRegister.*
 
 import scala.annotation.tailrec
 
@@ -9,7 +9,7 @@ private class Processor(device: Device) {
   val memory: Memory = new Memory
   val tg: TactGenerator = new TactGenerator
   val controlUnit = new ControlUnit(tg, memory, device)
-  
+
   def log: String = {
     @tailrec
     def zeros(s: String): String = if (s.length < 4) zeros("0" + s) else s
@@ -22,9 +22,10 @@ private class Processor(device: Device) {
       val addr = en._3
         .map(e => (e._1, ControlUnit.m16(e._2)))
         .map(e => (e._1, zeros(e._2.toHexString.toUpperCase)))
-      
+
       s"|$tact|${data(AC)}|${data(DR)}|${data(CR)}|${addr(IP)}|${addr(AR)}|\n"
     }
+
     val head = "|TACT| AC | DR | CR | IP | AR |\n"
     val sb = new StringBuilder
     sb.append(head)

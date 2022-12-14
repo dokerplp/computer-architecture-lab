@@ -20,7 +20,30 @@ class Translator:
   private val strings: MutableMap[String, String] = MutableMap()
   private val program: MutableList[String] = MutableList()
   private var loops = 0
+
+  def translate(input: String, output: String): Unit =
+    val src = Source.fromFile(input)
+    val lines = src.getLines().toList.mkString("\n")
+
+    val compilerEnv = new CompilerEnvirons
+    val errorReporter = compilerEnv.getErrorReporter
+    val parser = new Parser(compilerEnv, errorReporter)
+
+    val astRoot = parser.parse(lines, null, 1)
+
+    takeVariables(astRoot)
+    setVariables()
+
+    program += label("start", NULL())
+    parseTree(astRoot)
+    program += HLT()
+
+    Files.write(Paths.get(output), program.mkString("\n").getBytes(StandardCharsets.UTF_8))
+
+    src.close
+
   private def lBegin = s"loop$loops"
+
   private def lEnd = s"end$loops"
 
   private def variable(v: VariableInitializer): Unit =
@@ -114,7 +137,6 @@ class Translator:
       case v: VariableDeclaration => ()
       case _ => throw new TranslationException(s"Line ${n.getLineno}: invalid node type")
 
-
   //set addresses for taken variables
   private def setVariables(): Unit =
     def char(c: Char): String = c.toInt.toHexString.toUpperCase
@@ -136,28 +158,6 @@ class Translator:
       case _ => ()
 
 
-  def translate(input: String, output: String): Unit =
-    val src = Source.fromFile(input)
-    val lines = src.getLines().toList.mkString("\n")
-
-    val compilerEnv = new CompilerEnvirons
-    val errorReporter = compilerEnv.getErrorReporter
-    val parser = new Parser(compilerEnv, errorReporter)
-
-    val astRoot = parser.parse(lines, null, 1)
-
-    takeVariables(astRoot)
-    setVariables()
-
-    program += label("start", NULL())
-    parseTree(astRoot)
-    program += HLT()
-
-    Files.write(Paths.get(output), program.mkString("\n").getBytes(StandardCharsets.UTF_8))
-
-    src.close
-
-
 object Translator:
   def nameOrNum(n: Node): (Type, String) =
     n match
@@ -165,5 +165,6 @@ object Translator:
       case nu: NumberLiteral => (DIRECT, nu.getValue)
 
   def ptr(lab: String): String = s"${lab}ptr"
+
   def label(lab: String, body: String): String = s"$lab: $body"
 

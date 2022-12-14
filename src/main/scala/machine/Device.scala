@@ -1,11 +1,11 @@
 package machine
+
 class Device:
 
   var IO: Int = 0
-  private var ix = 0
-
   var input: List[Int] = List()
   var output: List[Int] = List()
+  private var ix = 0
 
   def read(): Unit =
     IO = input(ix)

@@ -1,7 +1,7 @@
 package machine
 
 import machine.AddressedCommand.Type
-import machine.AddressedCommand.Type._
+import machine.AddressedCommand.Type.*
 
 enum AddressedCommand(val mnemonic: String, val binary: Character):
   case ADD extends AddressedCommand("ADD", '1')
@@ -24,14 +24,14 @@ enum AddressedCommand(val mnemonic: String, val binary: Character):
       case DIRECT => Integer.parseInt(s"${binary}800", 16)
       case RELATIVE => Integer.parseInt(s"${binary}C00", 16)
     val res = left + arg
-    if (res > Memory.MAX_WORD || res < Memory.MIN_WORD) throw new RuntimeException() else res    
+    if (res > Memory.MAX_WORD || res < Memory.MIN_WORD) throw new RuntimeException() else res
 
 object AddressedCommand:
 
+  def parse(s: String): Option[AddressedCommand] =
+    AddressedCommand.values.find(c => c.mnemonic == s)
+
   enum Type:
     case ABSOLUTE, DIRECT, RELATIVE
-    
-  def parse(s: String): Option[AddressedCommand] = 
-    AddressedCommand.values.find(c => c.mnemonic == s)
   
 

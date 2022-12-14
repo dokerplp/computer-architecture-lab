@@ -8,6 +8,7 @@ class User:
     device.IO = addr
     processor.controlUnit.writeIP()
     processor.controlUnit.input()
+
   def load(instructions: List[Int], start: Int): Unit =
     device.IO = start
     processor.controlUnit.writeIP()
@@ -15,6 +16,7 @@ class User:
       device.IO = i
       processor.controlUnit.input()
     }
+
   def run(ip: Int): Unit = processor.startProgram(ip)
 
 

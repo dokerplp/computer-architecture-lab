@@ -1,22 +1,22 @@
 package machine
 
 import exception.{HLTException, IllegalAddressException, IllegalDataFormatException}
+import machine.AddressedCommand.*
+import machine.ControlUnit.*
+import machine.Memory.AddrRegister.*
+import machine.Memory.DataRegister.*
+import machine.UnaddressedCommand.*
 
 import java.util.zip.DataFormatException
 import scala.math.*
 import scala.util.matching.Regex
-import machine.ControlUnit.*
 
-import machine.Memory.DataRegister._
-import machine.Memory.AddrRegister._
-import machine.AddressedCommand._
-import machine.UnaddressedCommand._
 class ControlUnit(private val tg: TactGenerator, private val memory: Memory, private val device: Device):
   private var _log: List[(Int, Map[Memory.DataRegister, Int], Map[Memory.AddrRegister, Int])] = List()
+
   def log: List[(Int, Map[Memory.DataRegister, Int], Map[Memory.AddrRegister, Int])] = _log
+
   def freeLog(): Unit = _log = List()
-  private def logEntry(): Unit =
-    _log = _log :+ (tg.tact, Map() ++ memory.dataRegisters, Map() ++ memory.addrRegisters)
 
   def writeIP(): Unit =
     memory.reg(IP) = device.IO
@@ -71,8 +71,8 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
     //Unaddressed commands
     hex match
       case NULL.binary => _null()
-      case HLT.binary  => hlt()
-      case CLA.binary  => cla()
+      case HLT.binary => hlt()
+      case CLA.binary => cla()
       case INC.binary => inc()
       case DEC.binary => dec()
       case OUT.binary => out()
@@ -96,7 +96,6 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
 
     logEntry()
     commandFetch();
-
 
   //SUB -> 0x2xxx
   def sub(): Unit =
@@ -204,11 +203,17 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
     logEntry()
     commandFetch()
 
+  private def logEntry(): Unit =
+    _log = _log :+ (tg.tact, Map() ++ memory.dataRegisters, Map() ++ memory.addrRegisters)
+
 object ControlUnit:
 
-  private def bit(x: Int, n: Int) = (x >> n) & 1
   def m8(x: Int): Int = x & 0x00FF
+
   def m11(x: Int): Int = x & 0x07FF
-  def m16(x: Int): Int = x & 0xFFFF
 
   def toHex(x: Int): String = m16(x).toHexString.toUpperCase
+
+  def m16(x: Int): Int = x & 0xFFFF
+
+  private def bit(x: Int, n: Int) = (x >> n) & 1
