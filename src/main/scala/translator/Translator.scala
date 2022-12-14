@@ -38,10 +38,10 @@ class Translator:
   private def loop(l: WhileLoop): Unit =
     loops += 1
     val cond = l.getCondition.asInstanceOf[Name].getIdentifier
-    program += label(lBegin, LOOP(cond, ADDR))
-    program += JUMP(lEnd, ADDR)
+    program += label(lBegin, LOOP(cond, ABSOLUTE))
+    program += JUMP(lEnd, ABSOLUTE)
     l.getBody.forEach(parseTree)
-    program += JUMP.mnemonic(lBegin, ADDR)
+    program += JUMP(lBegin, ABSOLUTE)
     program += label(lEnd, NULL())
 
   @tailrec
@@ -60,11 +60,11 @@ class Translator:
 
   private def expression(expr: UpdateExpression): Unit =
     val op = expr.getOperand.asInstanceOf[Name].getIdentifier
-    program += LD(op, ADDR)
+    program += LD(op, ABSOLUTE)
     expr.getType match
-      case Token.INC => program += INC.mnemonic()
-      case Token.DEC => program += DEC.mnemonic()
-    program += ST(op, ADDR)
+      case Token.INC => program += INC()
+      case Token.DEC => program += DEC()
+    program += ST(op, ABSOLUTE)
 
   private def expression(expr: Assignment): Unit =
     val left = expr.getLeft.asInstanceOf[Name].getIdentifier
@@ -77,19 +77,19 @@ class Translator:
           case Token.ASSIGN_SUB => program ++= List(LD(left, t), SUB(right, t))
           case _ => throw new TranslationException(s"Line ${expr.getLineno}: unknown Assignment")
       case infixExpression: InfixExpression => expression(infixExpression)
-    program += ST(left, ADDR)
+    program += ST(left, ABSOLUTE)
 
   private def function(fun: FunctionCall): Unit =
     def printString(name: String): Unit =
       loops += 1
       val _ptr = ptr(name)
       program += label(lBegin, LD(_ptr, RELATIVE))
-      program += JZ(lEnd, ADDR)
+      program += JZ(lEnd, ABSOLUTE)
       program += OUT()
-      program += LD(_ptr, ADDR)
+      program += LD(_ptr, ABSOLUTE)
       program += INC()
-      program += ST(_ptr, ADDR)
-      program += JUMP(lBegin, ADDR)
+      program += ST(_ptr, ABSOLUTE)
+      program += JUMP(lBegin, ABSOLUTE)
       program += label(lEnd, NULL())
 
     val name = fun.getTarget.asInstanceOf[Name].getIdentifier
@@ -98,7 +98,7 @@ class Translator:
     arg match
       case n: Name =>
         val name = n.getIdentifier
-        if (nums.contains(name)) program ++= List(LD(name, ADDR), OUT())
+        if (nums.contains(name)) program ++= List(LD(name, ABSOLUTE), OUT())
         else if (strings.contains(name)) printString(name)
 
   private def parseTree(n: Node): Unit =
@@ -148,8 +148,9 @@ class Translator:
 
     takeVariables(astRoot)
     setVariables()
-    parseTree(astRoot)
 
+    program += label("start", NULL())
+    parseTree(astRoot)
     program += HLT()
 
     Files.write(Paths.get(output), program.mkString("\n").getBytes(StandardCharsets.UTF_8))
@@ -160,7 +161,7 @@ class Translator:
 object Translator:
   def nameOrNum(n: Node): (Type, String) =
     n match
-      case na: Name => (ADDR, na.getIdentifier)
+      case na: Name => (ABSOLUTE, na.getIdentifier)
       case nu: NumberLiteral => (DIRECT, nu.getValue)
 
   def ptr(lab: String): String = s"${lab}ptr"

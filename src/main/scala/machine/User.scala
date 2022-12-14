@@ -1,17 +1,21 @@
 package machine
 
 class User:
-  private val _processor = new Processor
-  def processor: Processor = _processor
+  val device = new Device
+  val processor = new Processor(device)
 
   def load(instr: Int, addr: Int): Unit =
-    processor.controlUnit.writeIP(addr)
-    processor.controlUnit.input(instr)
+    device.IO = addr
+    processor.controlUnit.writeIP()
+    processor.controlUnit.input()
   def load(instructions: List[Int], start: Int): Unit =
-    processor.controlUnit.writeIP(start)
-    instructions.foreach(processor.controlUnit.input)
-
-  def run(ip: Int): Unit = _processor.startProgram(ip)
+    device.IO = start
+    processor.controlUnit.writeIP()
+    instructions.foreach { i =>
+      device.IO = i
+      processor.controlUnit.input()
+    }
+  def run(ip: Int): Unit = processor.startProgram(ip)
 
 
 
