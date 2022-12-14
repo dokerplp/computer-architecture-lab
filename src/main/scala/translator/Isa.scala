@@ -20,6 +20,8 @@ class Isa:
   private val directRegex = """#(\w+)""".r
   private val relativeRegex = """\((\w+)\)""".r
 
+  private val hexRegex = """[0-9A-F]+""".r
+
   private def toBinary(com: String, arg: String): Int =
     val ad = AddressedCommand.parse(com)
     if (ad.isDefined) arg match
@@ -52,7 +54,8 @@ class Isa:
       case unaddressedCommandOrDataRegex(_, com) =>
         val un = UnaddressedCommand.parse(com)
         if (un.isDefined) parse(lines.tail, instructions :+ un.get.toBinary)
-        else parse(lines.tail, instructions :+ Integer.parseInt(com, 16))
+        else if (hexRegex.matches(com)) parse(lines.tail, instructions :+ Integer.parseInt(com, 16))
+        else parse(lines.tail, instructions :+ labels(com))
       case _ => parse(lines.tail, instructions)
 
   def translate(input: String, output: String): Unit =
@@ -69,7 +72,8 @@ class Isa:
     } catch {
       case e: HLTException => println(e.getMessage)
     }
-    println(user.processor.memory.mem(3))
+    println(user.processor.log)
+    println(user.device.output.map(i => i.toChar).mkString)
 
 
 

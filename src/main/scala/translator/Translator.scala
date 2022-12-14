@@ -121,7 +121,7 @@ class Translator:
 
     nums.foreach(v => program += label(v._1, v._2.toString))
     strings.foreach { s =>
-      program += label(ptr(s._1), s"#${s._1}")
+      program += label(ptr(s._1), s"${s._1}")
       program += label(s._1, char(s._2.charAt(0)))
       s._2.substring(1).foreach(c => program.addOne(char(c)))
       program += "0"

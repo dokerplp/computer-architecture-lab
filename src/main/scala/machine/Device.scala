@@ -13,3 +13,7 @@ class Device:
 
   def write(): Unit =
     output = output :+ IO
+
+  def load(data: List[Int]): Unit =
+    input = data
+    ix = 0

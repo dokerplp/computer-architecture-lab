@@ -23,7 +23,6 @@ enum AddressedCommand(val mnemonic: String, val binary: Character):
       case ABSOLUTE => Integer.parseInt(s"${binary}000", 16)
       case DIRECT => Integer.parseInt(s"${binary}800", 16)
       case RELATIVE => Integer.parseInt(s"${binary}C00", 16)
-
     val res = left + arg
     if (res > Memory.MAX_WORD || res < Memory.MIN_WORD) throw new RuntimeException() else res    
 

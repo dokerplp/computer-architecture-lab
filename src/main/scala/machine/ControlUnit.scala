@@ -12,23 +12,11 @@ import machine.Memory.AddrRegister._
 import machine.AddressedCommand._
 import machine.UnaddressedCommand._
 class ControlUnit(private val tg: TactGenerator, private val memory: Memory, private val device: Device):
-//  private var _log: List[Map[Memory.Register, Int]] = List()
-//  def log: List[Map[Register, Int]] = _log
-//  def freeLog(): Unit =
-//    _log = List()
-//  private def logEntry(): Unit =
-//    _log = _log :+ (Map() ++ memory.registers)
-//
-//  private var _buffer: List[Int] = List()
-
-//  def buffer: List[Int] =
-//    val cp = _buffer
-//    _buffer = List()
-//    cp
-
-  def logEntry(): Unit =
-    println()
-
+  private var _log: List[(Int, Map[Memory.DataRegister, Int], Map[Memory.AddrRegister, Int])] = List()
+  def log: List[(Int, Map[Memory.DataRegister, Int], Map[Memory.AddrRegister, Int])] = _log
+  def freeLog(): Unit = _log = List()
+  private def logEntry(): Unit =
+    _log = _log :+ (tg.tact, Map() ++ memory.dataRegisters, Map() ++ memory.addrRegisters)
 
   def writeIP(): Unit =
     memory.reg(IP) = device.IO
@@ -87,8 +75,9 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
       case CLA.binary  => cla()
       case INC.binary => inc()
       case DEC.binary => dec()
+      case OUT.binary => out()
+      case IN.binary => in()
       case _ => ()
-      //case OUT.binary => out()
 
     //Addressed commands
     hex.charAt(0) match
@@ -160,7 +149,10 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
   //JZ -> 0x7xxx
   def jz(): Unit =
     if (memory.zero) jump()
-    logEntry()
+    else {
+      logEntry()
+      commandFetch()
+    }
 
   //NULL -> 0xF000
   def _null(): Unit =
@@ -197,16 +189,24 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
     commandFetch()
 
   //OUT -> 0xF500
-//  def out(): Unit =
-//    memory.reg(IO) = memory.reg(AC)
-//    _buffer = _buffer :+ memory.reg(IO)
-//
-//    logEntry()
-//    commandFetch()
+  def out(): Unit =
+    device.IO = memory.reg(AC)
+    device.write()
+
+    logEntry()
+    commandFetch()
+
+  //IN -> 0xF500
+  def in(): Unit =
+    memory.reg(AC) = device.IO
+    device.read()
+
+    logEntry()
+    commandFetch()
 
 object ControlUnit:
 
-  private def bit(x: Int, n: Int) = (x << n) & 1
+  private def bit(x: Int, n: Int) = (x >> n) & 1
   def m8(x: Int): Int = x & 0x00FF
   def m11(x: Int): Int = x & 0x07FF
   def m16(x: Int): Int = x & 0xFFFF
