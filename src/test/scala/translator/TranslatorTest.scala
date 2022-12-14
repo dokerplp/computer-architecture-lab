@@ -17,12 +17,12 @@ class TranslatorTest extends AnyFunSuite {
   //  }
 
   test("hello world translator") {
-    translator.translate("./jaba/helloWorld.js", "./jaba/helloWorld.as")
+    translator.translate("./lang/helloWorld.js", "./lang/helloWorld.as")
     println()
   }
 
   test("hello world test") {
-    isa.translate("./jaba/helloWorld.as", "")
+    isa.translate("./lang/helloWorld.as", "")
   }
 
 
