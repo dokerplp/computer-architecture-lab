@@ -3,3 +3,6 @@
 /doc/
 /project/target
 /project/project/
+/src/test/resources/test.out
+/src/test/resources/test.log
+/src/test/resources/test.as

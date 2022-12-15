@@ -72,6 +72,7 @@ class Translator:
         if (nums.contains(id)) nums(name) = nums(id)
         else if (strings.contains(id)) strings(name) = strings(id)
         else throw new TranslationException(s"Line ${v.getLineno}: unknown variable $id")
+      case i: InfixExpression => nums(name) = expressionCalc(i)
       case _ => throw new TranslationException(s"Line ${v.getLineno}: unknown variable type")
 
   /**
@@ -88,6 +89,33 @@ class Translator:
     l.getBody.forEach(parseTree)
     program += JUMP(begin, ABSOLUTE)
     program += label(end, NULL())
+
+  /**
+   * Get value of number or variable
+   * @return value
+   */
+  def value(n: Node): Int =
+    n match
+      case na: Name => nums(na.getIdentifier)
+      case nu: NumberLiteral => nu.getNumber.toInt
+
+
+  /**
+   * Calculates expression recursively
+   * @return value
+   */
+  private def expressionCalc(expression: InfixExpression): Int =
+    @tailrec
+    def helper(expr: InfixExpression, acc: Int): Int =
+      val arg = expr.getType match
+        case Token.ADD => value(expr.getRight)
+        case Token.SUB => -value(expr.getRight)
+        case _ => throw new TranslationException(s"Line ${expr.getLineno}: unknown infix expression")
+      expr.getLeft match
+        case i: InfixExpression => helper(i, acc + arg)
+        case n: (Name | NumberLiteral) => acc + arg + value(n)
+        case _ => throw new TranslationException(s"Line ${expr.getLineno}: unknown expression")
+    helper(expression, 0)
 
   /**
    * Parsing infix expression
@@ -134,7 +162,7 @@ class Translator:
           case Token.ASSIGN_ADD => program ++= List(LD(left, t), ADD(right, t))
           case Token.ASSIGN_SUB => program ++= List(LD(left, t), SUB(right, t))
           case _ => throw new TranslationException(s"Line ${expr.getLineno}: unknown Assignment")
-      case infixExpression: InfixExpression => expression(infixExpression)
+      case i: InfixExpression => program += CLA(); expression(i)
     program += ST(left, ABSOLUTE)
 
   /**

@@ -14,6 +14,7 @@ enum AddressedCommand(val mnemonic: String, val binary: Character):
   case JUMP extends AddressedCommand("JUMP", '6')
   case JZ extends AddressedCommand("JZ", '7')
 
+
   def apply(label: String, _type: Type): String =
     _type match
       case ABSOLUTE => s"$mnemonic $$$label"

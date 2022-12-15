@@ -23,6 +23,14 @@ class ISA:
   private val hexRegex = """[0-9A-F]+""".r
   private var addr = 0
 
+  /**
+   * Translation and execution of assembler
+   * @param as - assembler source
+   * @param in - input data
+   * @param out - output data
+   * @param log - program log
+   * @param str - result is string or numbers
+   */
   def translate(as: String, in: String, out: String, log: String, str: Boolean = false): Unit =
     val src = Source.fromFile(as)
     val lines: List[String] = src.getLines().toList
@@ -42,12 +50,18 @@ class ISA:
       case e: HLTException => println(e.getMessage)
     }
 
-    val res = if (str) user.device.output.map(i => i.toChar).mkString else user.device.output.toString
+    val res = if (str) user.device.output.map(i => i.toChar).mkString else user.device.output.mkString(" ")
     Files.write(Paths.get(log), user.processor.log.getBytes(StandardCharsets.UTF_8))
     Files.write(Paths.get(out), res.getBytes(StandardCharsets.UTF_8))
     src.close
     inSrc.close
 
+  /**
+   * Parse assembler code to binary format
+   * @param com - command name
+   * @param arg - argument
+   * @return command in binary command
+   */
   private def toBinary(com: String, arg: String): Int =
     val ad = AddressedCommand.parse(com)
     if (ad.isDefined) arg match
@@ -56,6 +70,11 @@ class ISA:
       case relativeRegex(l) => ad.get.toBinary(RELATIVE, labels(l))
     else throw new RuntimeException()
 
+  /**
+   * Parse labels and set addresses for them
+   * @param lines - assembler lines
+   * @param address - current address
+   */
   @tailrec
   private def setLabels(lines: List[String], address: Int): Unit =
     if (lines.nonEmpty) {
@@ -70,6 +89,12 @@ class ISA:
           setLabels(lines.tail, address + 1)
     }
 
+  /**
+   * Parse each assembler line
+   * @param lines - assembler lines
+   * @param instructions - parsing result
+   * @return instructions
+   */
   @tailrec
   private def parse(lines: List[String], instructions: List[Int]): List[Int] =
     if (lines.isEmpty) return instructions

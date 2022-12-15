@@ -8,6 +8,15 @@ import scala.io.Source
 
 class IntegrationTest extends AnyFunSuite {
 
+  def printFile(file: String): Unit = {
+    val src = Source.fromFile(file)
+    val res = src.getLines().toList.mkString("\n")
+
+    println(res)
+
+    src.close()
+  }
+
   test("hello world test") {
     val js = "./lang/helloWorld.js"
     val as = "./lang/helloWorld.as"
@@ -25,6 +34,7 @@ class IntegrationTest extends AnyFunSuite {
     val res = src.getLines().toList.mkString
 
     assert(res == "hello world")
+    src.close()
   }
 
   test("cat test") {
@@ -62,6 +72,6 @@ class IntegrationTest extends AnyFunSuite {
     val src = Source.fromFile(out)
     val res = src.getLines().toList.mkString
 
-    assert(res == "List(4613732)")
+    assert(res == "4613732")
   }
 }

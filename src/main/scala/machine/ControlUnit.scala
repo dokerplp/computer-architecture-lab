@@ -34,13 +34,13 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
     memory.mem(memory.reg(AR)) = memory.reg(DR)
     tg.tick()
 
-  def loadWithDR(): Unit =
+  private def loadWithDR(): Unit =
     memory.reg(AR) = memory.reg(DR)
     tg.tick()
     memory.reg(DR) = memory.mem(memory.reg(AR))
     tg.tick()
 
-  def loadWithIP(): Unit =
+  private def loadWithIP(): Unit =
     memory.reg(AR) = memory.reg(IP)
     tg.tick()
     memory.reg(DR) = memory.mem(memory.reg(AR))
