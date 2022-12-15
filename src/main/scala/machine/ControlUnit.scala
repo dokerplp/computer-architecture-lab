@@ -13,12 +13,19 @@ import scala.math.*
 import scala.util.matching.Regex
 
 class ControlUnit(private val tg: TactGenerator, private val memory: Memory, private val device: Device):
+
+  /**
+   * Log in format (TICK, DATA REGISTERS, ADDRESS REGISTERS)
+   */
   private var _log: List[(Int, Map[DataRegister, Int], Map[AddrRegister, Int])] = List()
 
   def log: List[(Int, Map[DataRegister, Int], Map[AddrRegister, Int])] = _log
 
   def freeLog(): Unit = _log = List()
 
+  /**
+   * Add entry to log
+   */
   private def logEntry(): Unit =
     _log = _log :+ (tg.tact, Map() ++ memory.dataRegisters, Map() ++ memory.addrRegisters)
 

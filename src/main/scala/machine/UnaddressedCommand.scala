@@ -17,5 +17,9 @@ enum UnaddressedCommand(val mnemonic: String, val binary: String):
 
 
 object UnaddressedCommand:
+
+  /**
+   * Finds element of enum by mnemonic
+   */
   def parse(s: String): Option[UnaddressedCommand] =
     UnaddressedCommand.values.find(c => c.mnemonic == s)

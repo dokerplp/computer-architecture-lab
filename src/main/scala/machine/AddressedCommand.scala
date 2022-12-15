@@ -14,13 +14,24 @@ enum AddressedCommand(val mnemonic: String, val binary: Character):
   case JUMP extends AddressedCommand("JUMP", '6')
   case JZ extends AddressedCommand("JZ", '7')
 
-
+  /**
+   * Mnemonic constructor
+   * @param label - argument
+   * @param _type - addressing type
+   * @return mnemonic
+   */
   def apply(label: String, _type: Type): String =
     _type match
       case ABSOLUTE => s"$mnemonic $$$label"
       case DIRECT => s"$mnemonic #$label"
       case RELATIVE => s"$mnemonic ($label)"
 
+  /**
+   * Binary format of command
+   * @param _type - addressing type
+   * @param arg - argument for checking word size
+   * @return command in binary format
+   */
   def toBinary(_type: Type, arg: Int): Int =
     val com = _type match
       case ABSOLUTE => hex(s"${binary}000")
@@ -31,6 +42,9 @@ enum AddressedCommand(val mnemonic: String, val binary: Character):
 
 object AddressedCommand:
 
+  /**
+   * Finds element of enum by mnemonic
+   */
   def parse(s: String): Option[AddressedCommand] =
     AddressedCommand.values.find(c => c.mnemonic == s)
 

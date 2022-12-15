@@ -11,6 +11,9 @@ private class Processor(device: Device) {
   val tg: TactGenerator = new TactGenerator
   val controlUnit = new ControlUnit(tg, memory, device)
 
+  /**
+   * Takes logs from Control Unit and makes them pretty
+   */
   def log: String = {
     @tailrec
     def zeros(s: String): String = if (s.length < 8) zeros("0" + s) else s
@@ -31,6 +34,9 @@ private class Processor(device: Device) {
     sb.toString
   }
 
+  /**
+   * Model start
+   */
   def startProgram(ip: Int): Unit =
     controlUnit.freeLog()
     device.IO = ip

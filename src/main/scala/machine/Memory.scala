@@ -21,6 +21,9 @@ class Memory:
   private def setFlag(): Unit = _zero = dataRegisters(AC) == 0
 
   class Reg:
+    /**
+     * Increase register by 1
+     */
     @targetName("registerSubOne")
     def ++(r: (DataRegister | AddrRegister)): Unit =
       r match
@@ -28,6 +31,9 @@ class Memory:
         case a: AddrRegister => addrRegisters(a) = fixAddr(addrRegisters(a) + 1)
       setFlag()
 
+    /**
+     * Decrease register by 1
+     */
     @targetName("registerAddOne")
     def --(r: (DataRegister | AddrRegister)): Unit =
       r match
@@ -35,6 +41,9 @@ class Memory:
         case a: AddrRegister => addrRegisters(a) = fixAddr(addrRegisters(a) - 1)
       setFlag()
 
+    /**
+     * Increase register by value
+     */
     @targetName("registerAdd")
     def +++(r: (DataRegister | AddrRegister))(value: Int): Unit =
       r match
@@ -42,6 +51,9 @@ class Memory:
         case a: AddrRegister => addrRegisters(a) = fixAddr(addrRegisters(a) + value)
       setFlag()
 
+    /**
+     * Decrease register by value
+     */
     @targetName("registerSub")
     def ---(r: (DataRegister | AddrRegister))(value: Int): Unit =
       r match
@@ -49,21 +61,33 @@ class Memory:
         case a: AddrRegister => addrRegisters(a) = fixAddr(addrRegisters(a) - value)
       setFlag()
 
+    /**
+     * Set register value
+     */
     def update(r: (DataRegister | AddrRegister), value: Int): Unit =
       r match
         case d: DataRegister => dataRegisters(d) = fixData(value)
         case a: AddrRegister => addrRegisters(a) = fixAddr(value)
       setFlag()
 
+    /**
+     * Get register value
+     */
     def apply(r: (DataRegister | AddrRegister)): Int =
       r match
         case d: DataRegister => dataRegisters(d)
         case a: AddrRegister => addrRegisters(a)
 
   class Mem:
+    /**
+     * Set memory value
+     */
     def update(addr: Int, value: Int): Unit =
       memory(addr) = value
 
+    /**
+     * Get memory value
+     */
     def apply(addr: Int): Int =
       memory(addr)
 
@@ -76,8 +100,14 @@ object Memory:
   val MIN_WORD: Int = (-pow(2, WORD_SIZE - 1)).toInt
   val MAX_ADDR: Int = MEMORY_SIZE - 1
 
+  /**
+   * Mask for data registers
+   */
   private def fixData(x: Int): Int = x
 
+  /**
+   * Mask for address registers
+   */
   private def fixAddr(x: Int): Int =
     if (x > MAX_ADDR) x - MAX_ADDR - 1
     else if (x < 0) MAX_ADDR + x + 1
