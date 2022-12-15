@@ -114,14 +114,15 @@ print(hw)
 | `F200` | CLA      | 1             | Command<br/> Execution                                       | 0 -> AC                                                     |
 | `F300` | INC      | 1             | Command<br/> Execution                                       | AC + 1 -> AC                                                |
 | `F400` | DEC      | 1             | Command<br/> Execution                                       | AC - 1 -> AC                                                | 
-| `F500` | OUT      | 1             | Command<br/> Execution                                       | AC -> IO                                                    |
+| `F500` | IN       | 1             | Command<br/> Execution                                       | IO -> AC                                                    |
+| `F600` | OUT      | 1             | Command<br/> Execution                                       | AC -> IO                                                    |
 
 ### Циклы
 
 | Цикл            | Кол-во тактов | Comment                                                   | 
 |:----------------|:--------------|:----------------------------------------------------------|
 | Command Fetch   | 3             | IP -> AR <br/> MEM(AR) -> DR; IP + 1 -> IP <br/> DR -> CR | 
-| Operand Fetch   | 3             | DR(0-11) -> DR <br/> DR -> AR <br/> MEM(AR) -> DR         | 
+| Operand Fetch   | 1-4           | Зависит от режима адресации                               | 
 | Execution Fetch | -             | См. описание команды                                      |
 
 ### Режимы адресации
@@ -242,6 +243,6 @@ HLT
 
 | ФИО         | алг.  | LoC | code байт | code инстр. | инстр. | такт. | вариант                                                          |
 |-------------|-------|-----|-----------|-------------|--------|-------|------------------------------------------------------------------|
-| Буторин В.А | hello | 2   | 46        | -           | 10     | 430   | `alg - acc - neum - hw - instr - struct - stream - port - prob2` |       
-| Буторин В.А | cat   | 6   | 26        | -           | 12     | 179   | `alg - acc - neum - hw - instr - struct - stream - port - prob2` |
-| Буторин В.А | prob2 | 20  | 78        | -           | 32     | 3750  | `alg - acc - neum - hw - instr - struct - stream - port - prob2` |
+| Буторин В.А | hello | 2   | 46        | -           | 10     | 441   | `alg - acc - neum - hw - instr - struct - stream - port - prob2` |       
+| Буторин В.А | cat   | 6   | 26        | -           | 12     | 190   | `alg - acc - neum - hw - instr - struct - stream - port - prob2` |
+| Буторин В.А | prob2 | 20  | 78        | -           | 32     | 3763  | `alg - acc - neum - hw - instr - struct - stream - port - prob2` |

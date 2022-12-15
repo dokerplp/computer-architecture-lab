@@ -55,6 +55,7 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
     if (bit(memory.reg(DR), 11) == 0) absolute()
     else if (bit(memory.reg(DR), 10) == 0) {
       memory.reg(DR) = m8(memory.reg(DR))
+      tg.tick()
     }
     else {
       memory.reg(DR) = m8(memory.reg(DR))
@@ -193,6 +194,7 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
   def out(): Unit =
     device.IO = memory.reg(AC)
     device.write()
+    tg.tick()
 
     logEntry()
     commandFetch()
@@ -201,6 +203,7 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
   def in(): Unit =
     device.read()
     memory.reg(AC) = device.IO
+    tg.tick()
 
     logEntry()
     commandFetch()
