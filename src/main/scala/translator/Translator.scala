@@ -23,28 +23,45 @@ class Translator:
 
   private def lBegin = s"loop$loops"
   private def lEnd = s"end$loops"
-  
+
+  /**
+   * Translation javascript code to assembler
+   * @param input - input file
+   * @param output - output file
+   */
   def translate(input: String, output: String): Unit =
+    //javascript -> String
     val src = Source.fromFile(input)
     val lines = src.getLines().toList.mkString("\n")
 
+    //Rhino parameters
     val compilerEnv = new CompilerEnvirons
     val errorReporter = compilerEnv.getErrorReporter
     val parser = new Parser(compilerEnv, errorReporter)
 
+    //AST
     val astRoot = parser.parse(lines, null, 1)
 
+    //Find all variables
     takeVariables(astRoot)
+    //Set addresses
     setVariables()
 
+    //add start label
     program += label("start", NULL())
+    //program
     parseTree(astRoot)
+    //end of program
     program += HLT()
 
+    //String -> assembler
     Files.write(Paths.get(output), program.mkString("\n").getBytes(StandardCharsets.UTF_8))
-
     src.close
 
+  /**
+   * Parsing variables
+   * @example var a = 4
+   */
   private def variable(v: VariableInitializer): Unit =
     val name = v.getTarget.asInstanceOf[Name].getIdentifier
     v.getInitializer match
@@ -57,15 +74,25 @@ class Translator:
         else throw new TranslationException(s"Line ${v.getLineno}: unknown variable $id")
       case _ => throw new TranslationException(s"Line ${v.getLineno}: unknown variable type")
 
+  /**
+   * Parsing loop
+   * @example while(n) {}
+   */
   private def loop(l: WhileLoop): Unit =
     loops += 1
+    val begin = lBegin
+    val end = lEnd
     val cond = l.getCondition.asInstanceOf[Name].getIdentifier
-    program += label(lBegin, LOOP(cond, ABSOLUTE))
-    program += JUMP(lEnd, ABSOLUTE)
+    program += label(begin, LOOP(cond, ABSOLUTE))
+    program += JUMP(end, ABSOLUTE)
     l.getBody.forEach(parseTree)
-    program += JUMP(lBegin, ABSOLUTE)
-    program += label(lEnd, NULL())
+    program += JUMP(begin, ABSOLUTE)
+    program += label(end, NULL())
 
+  /**
+   * Parsing infix expression
+   * @example 4 + n - a - b + 6
+   */
   @tailrec
   private def expression(expr: InfixExpression): Unit =
     val (t, arg) = nameOrNum(expr.getRight)
@@ -80,6 +107,11 @@ class Translator:
         program += ADD(arg2, t2)
       case _ => throw new TranslationException(s"Line ${expr.getLineno}: unknown expression")
 
+
+  /**
+   * Parsing update expression
+   * @example n--
+   */
   private def expression(expr: UpdateExpression): Unit =
     val op = expr.getOperand.asInstanceOf[Name].getIdentifier
     program += LD(op, ABSOLUTE)
@@ -88,6 +120,10 @@ class Translator:
       case Token.DEC => program += DEC()
     program += ST(op, ABSOLUTE)
 
+  /**
+   * Parsing assigment expression
+   * @example n += 5
+   */
   private def expression(expr: Assignment): Unit =
     val left = expr.getLeft.asInstanceOf[Name].getIdentifier
     expr.getRight match
@@ -101,7 +137,12 @@ class Translator:
       case infixExpression: InfixExpression => expression(infixExpression)
     program += ST(left, ABSOLUTE)
 
-  private def function(fun: FunctionCall): Unit =
+  /**
+   * Parsing print function
+   * @example n = 6
+   *          print(n)
+   */
+  private def printFunction(fun: FunctionCall): Unit =
     def printString(name: String): Unit =
       loops += 1
       val _ptr = ptr(name)
@@ -114,8 +155,6 @@ class Translator:
       program += JUMP(lBegin, ABSOLUTE)
       program += label(lEnd, NULL())
 
-    val name = fun.getTarget.asInstanceOf[Name].getIdentifier
-    if (name != "print") throw new TranslationException(s"Line ${fun.getLineno}: invalid function name")
     val arg = fun.getArguments.get(0)
     arg match
       case n: Name =>
@@ -123,6 +162,30 @@ class Translator:
         if (nums.contains(name)) program ++= List(LD(name, ABSOLUTE), OUT())
         else if (strings.contains(name)) printString(name)
 
+  /**
+   * Parsing read function
+   * @example read(n)
+   */
+  private def readFunction(fun: FunctionCall): Unit =
+    val arg = fun.getArguments.get(0)
+    program += IN()
+    arg match
+      case n: Name => program += ST(n.getIdentifier, ABSOLUTE)
+
+
+  /**
+   * Parsing read function
+   * @example f()
+   */
+  private def function(fun: FunctionCall): Unit =
+    fun.getTarget.asInstanceOf[Name].getIdentifier match
+      case "print" => printFunction(fun)
+      case "read" => readFunction(fun)
+      case _ => throw new TranslationException(s"Line ${fun.getLineno}: invalid function name")
+
+  /**
+   * Parsing AST term by term
+   */
   private def parseTree(n: Node): Unit =
     n match
       case a: AstRoot => a.forEach(parseTree)
@@ -136,11 +199,14 @@ class Translator:
       case v: VariableDeclaration => ()
       case _ => throw new TranslationException(s"Line ${n.getLineno}: invalid node type")
 
-  //set addresses for taken variables
+
+  /**
+   * Add read variable to assembler
+   */
   private def setVariables(): Unit =
     def char(c: Char): String = c.toInt.toHexString.toUpperCase
 
-    nums.foreach(v => program += label(v._1, v._2.toString))
+    nums.foreach(v => program += label(v._1, v._2.toHexString.toUpperCase))
     strings.foreach { s =>
       program += label(ptr(s._1), s"${s._1}")
       program += label(s._1, char(s._2.charAt(0)))
@@ -148,6 +214,9 @@ class Translator:
       program += "0"
     }
 
+  /**
+   * Read all variables to map
+   */
   private def takeVariables(n: Node): Unit =
     n match
       case a: AstRoot => a.forEach(takeVariables)

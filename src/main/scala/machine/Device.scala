@@ -1,5 +1,7 @@
 package machine
 
+import exception.EOFException
+
 class Device:
 
   var IO: Int = 0
@@ -8,6 +10,7 @@ class Device:
   private var ix = 0
 
   def read(): Unit =
+    if (input.length <= ix) throw new EOFException("Buffer is empty")
     IO = input(ix)
     ix += 1
 

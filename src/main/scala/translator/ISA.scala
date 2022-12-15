@@ -5,12 +5,13 @@ import machine.AddressedCommand.Type.*
 import machine.{AddressedCommand, UnaddressedCommand, User}
 import util.Binary.hex
 
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Paths}
 import scala.annotation.tailrec
 import scala.collection.mutable.{ArrayBuffer as MutableList, Map as MutableMap}
 import scala.io.Source
 
-class Isa:
-  private val user: User = new User
+class ISA:
   private val labels: MutableMap[String, Int] = MutableMap()
   private val labelRegex = """(\w+):.*""".r
   private val addressedCommandRegex = """(\w+:\s+)?(\w+)\s+([$#()\w]+)""".r
@@ -21,7 +22,7 @@ class Isa:
   private val hexRegex = """[0-9A-F]+""".r
   private var addr = 0
 
-  def translate(input: String, output: String): Unit =
+  def translate(input: String, output: String, log: String, user: User, str: Boolean = false): Unit =
     val src = Source.fromFile(input)
     val lines: List[String] = src.getLines().toList
 
@@ -35,14 +36,17 @@ class Isa:
     } catch {
       case e: HLTException => println(e.getMessage)
     }
-    println(user.processor.log)
-    println(user.device.output.map(i => i.toChar).mkString)
+    
+    val res = if (str) user.device.output.map(i => i.toChar).mkString else user.device.output.toString
+    Files.write(Paths.get(log), user.processor.log.getBytes(StandardCharsets.UTF_8))
+    Files.write(Paths.get(output), res.getBytes(StandardCharsets.UTF_8))
+    src.close
 
   private def toBinary(com: String, arg: String): Int =
     val ad = AddressedCommand.parse(com)
     if (ad.isDefined) arg match
       case absoluteRegex(l) => ad.get.toBinary(ABSOLUTE, labels(l))
-      case directRegex(l) => ad.get.toBinary(DIRECT, labels(l))
+      case directRegex(l) => ad.get.toBinary(DIRECT, l.toInt)
       case relativeRegex(l) => ad.get.toBinary(RELATIVE, labels(l))
     else throw new RuntimeException()
 

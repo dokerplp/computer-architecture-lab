@@ -14,7 +14,7 @@ class Memory:
   val reg = new Reg
   val mem = new Mem
   private val memory: MutableList[Int] = MutableList.tabulate(MEMORY_SIZE)(_ => WORD_INIT)
-  private var _zero = false
+  private var _zero = true
 
   def zero: Boolean = _zero
 
@@ -69,13 +69,12 @@ class Memory:
 
 
 object Memory:
-
-  val MAX_WORD: Int = (pow(2, WORD_SIZE - 1) - 1).toInt
-  val MIN_WORD: Int = (-pow(2, WORD_SIZE - 1)).toInt
-  private val MAX_ADDR: Int = MEMORY_SIZE - 1
   private val MEMORY_SIZE = 2048
   private val WORD_SIZE = 16
   private val WORD_INIT = 0
+  val MAX_WORD: Int = (pow(2, WORD_SIZE - 1) - 1).toInt
+  val MIN_WORD: Int = (-pow(2, WORD_SIZE - 1)).toInt
+  val MAX_ADDR: Int = MEMORY_SIZE - 1
 
   private def fixData(x: Int): Int =
     if (x > MAX_WORD) MIN_WORD + x - MAX_WORD - 1

@@ -5,7 +5,7 @@ import org.scalatest.funsuite.AnyFunSuite
 class TranslatorTest extends AnyFunSuite {
 
   val translator = new Translator
-  val isa = new Isa
+  val isa = new ISA
 
   //  test("fibonacci translator") {
   //    translator.translate("./jaba/fibonacci.js", "./jaba/fibonacci.as")
