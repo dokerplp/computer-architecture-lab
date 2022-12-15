@@ -218,7 +218,7 @@ HLT
 
 ## Апробация
 
-[ТЕСТЫ]()
+[ТЕСТЫ](./src/test/scala/integration/IntegrationTest.scala)
 
 * hello world
     - [javascript](./lang/helloWorld.js)

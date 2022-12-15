@@ -7,16 +7,7 @@ import translator.{ISA, Translator}
 import scala.io.Source
 
 class IntegrationTest extends AnyFunSuite {
-
-  def printFile(file: String): Unit = {
-    val src = Source.fromFile(file)
-    val res = src.getLines().toList.mkString("\n")
-
-    println(res)
-
-    src.close()
-  }
-
+  
   test("hello world test") {
     val js = "./lang/helloWorld.js"
     val as = "./lang/helloWorld.as"
