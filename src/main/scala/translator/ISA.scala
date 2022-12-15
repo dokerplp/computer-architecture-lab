@@ -11,7 +11,7 @@ import scala.annotation.tailrec
 import scala.collection.mutable.{ArrayBuffer as MutableList, Map as MutableMap}
 import scala.io.Source
 
-class ISA:
+class ISA(val user: User):
   private val labels: MutableMap[String, Int] = MutableMap()
   private val labelRegex = """(\w+):.*""".r
   private val addressedCommandRegex = """(\w+:\s+)?(\w+)\s+([$#()\w]+)""".r
@@ -22,7 +22,7 @@ class ISA:
   private val hexRegex = """[0-9A-F]+""".r
   private var addr = 0
 
-  def translate(input: String, output: String, log: String, user: User, str: Boolean = false): Unit =
+  def translate(input: String, output: String, log: String, str: Boolean = false): Unit =
     val src = Source.fromFile(input)
     val lines: List[String] = src.getLines().toList
 

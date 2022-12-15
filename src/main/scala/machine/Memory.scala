@@ -70,16 +70,13 @@ class Memory:
 
 object Memory:
   private val MEMORY_SIZE = 2048
-  private val WORD_SIZE = 16
+  private val WORD_SIZE = 32
   private val WORD_INIT = 0
   val MAX_WORD: Int = (pow(2, WORD_SIZE - 1) - 1).toInt
   val MIN_WORD: Int = (-pow(2, WORD_SIZE - 1)).toInt
   val MAX_ADDR: Int = MEMORY_SIZE - 1
 
-  private def fixData(x: Int): Int =
-    if (x > MAX_WORD) MIN_WORD + x - MAX_WORD - 1
-    else if (x < MIN_WORD) MAX_WORD + x - MIN_WORD + 1
-    else x
+  private def fixData(x: Int): Int = x
 
   private def fixAddr(x: Int): Int =
     if (x > MAX_ADDR) x - MAX_ADDR - 1
