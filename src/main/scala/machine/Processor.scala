@@ -35,5 +35,6 @@ private class Processor(device: Device) {
     controlUnit.freeLog()
     device.IO = ip
     controlUnit.writeIP()
+    tg.clean()
     controlUnit.commandFetch()
 }

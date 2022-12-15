@@ -11,7 +11,8 @@ import scala.annotation.tailrec
 import scala.collection.mutable.{ArrayBuffer as MutableList, Map as MutableMap}
 import scala.io.Source
 
-class ISA(val user: User):
+class ISA:
+  private val user = new User
   private val labels: MutableMap[String, Int] = MutableMap()
   private val labelRegex = """(\w+):.*""".r
   private val addressedCommandRegex = """(\w+:\s+)?(\w+)\s+([$#()\w]+)""".r
@@ -22,13 +23,17 @@ class ISA(val user: User):
   private val hexRegex = """[0-9A-F]+""".r
   private var addr = 0
 
-  def translate(input: String, output: String, log: String, str: Boolean = false): Unit =
-    val src = Source.fromFile(input)
+  def translate(as: String, in: String, out: String, log: String, str: Boolean = false): Unit =
+    val src = Source.fromFile(as)
     val lines: List[String] = src.getLines().toList
+
+    val inSrc = Source.fromFile(in)
+    val input: List[Int] = inSrc.getLines().toList.mkString.chars().toArray.toList :+ 0
 
     setLabels(lines, 0)
     val instructions = parse(lines, List())
 
+    user.device.input = input
     user.load(instructions, addr)
     try {
       val start = labels("start")
@@ -36,11 +41,12 @@ class ISA(val user: User):
     } catch {
       case e: HLTException => println(e.getMessage)
     }
-    
+
     val res = if (str) user.device.output.map(i => i.toChar).mkString else user.device.output.toString
     Files.write(Paths.get(log), user.processor.log.getBytes(StandardCharsets.UTF_8))
-    Files.write(Paths.get(output), res.getBytes(StandardCharsets.UTF_8))
+    Files.write(Paths.get(out), res.getBytes(StandardCharsets.UTF_8))
     src.close
+    inSrc.close
 
   private def toBinary(com: String, arg: String): Int =
     val ad = AddressedCommand.parse(com)

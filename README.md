@@ -14,7 +14,7 @@
 * `struct` заменено на `binary`: в связи с тем, что данные и инструкции должны храниться в общей памяти, каждая инструкция представляет собой 16-и битное число
 * `stream`: ввод-вывод реализован как поток данных
 * `port`: передача данных в процессор реализовано через команды (**IN**, **OUT**).
-* `prob2`: 
+* `prob2`: Even Fibonacci numbers
 
 ## Язык программирования
 
@@ -215,3 +215,31 @@ JUMP $loop1
 end1: NULL
 HLT
 ```
+
+## Апробация
+
+* hello world
+    - [javascript](./lang/helloWorld.js)
+    - [assembler](./lang/helloWorld.as)
+    - [input](./lang/helloWorld.in)
+    - [output](./lang/helloWorld.out)
+    - [log](./lang/helloWorld.log)
+* cat 
+    - [javascript](./lang/cat.js)
+    - [assembler](./lang/cat.as)
+    - [input](./lang/cat.in)
+    - [output](./lang/cat.out)
+    - [log](./lang/cat.log)
+* prob2
+    - [javascript](./lang/euler2.js)
+    - [assembler](./lang/euler2.as)
+    - [input](./lang/euler2.in)
+    - [output](./lang/euler2.out)
+    - [log](./lang/euler2.log)
+
+
+| ФИО         | алг.  | LoC | code байт | code инстр. | инстр. | такт. | вариант                                                          |
+|-------------|-------|-----|-----------|-------------|--------|-------|------------------------------------------------------------------|
+| Буторин В.А | hello | 2   | 46        | -           | 10     | 430   | `alg - acc - neum - hw - instr - struct - stream - port - prob2` |       
+| Буторин В.А | cat   | 6   | 26        | -           | 12     | 179   | `alg - acc - neum - hw - instr - struct - stream - port - prob2` |
+| Буторин В.А | prob2 | 20  | 78        | -           | 32     | 3750  | `alg - acc - neum - hw - instr - struct - stream - port - prob2` |

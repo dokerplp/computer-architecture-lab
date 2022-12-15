@@ -26,12 +26,12 @@ class Translator:
 
   /**
    * Translation javascript code to assembler
-   * @param input - input file
-   * @param output - output file
+   * @param js - input file (javascript)
+   * @param as - output file (assembler)
    */
-  def translate(input: String, output: String): Unit =
+  def translate(js: String, as: String): Unit =
     //javascript -> String
-    val src = Source.fromFile(input)
+    val src = Source.fromFile(js)
     val lines = src.getLines().toList.mkString("\n")
 
     //Rhino parameters
@@ -55,7 +55,7 @@ class Translator:
     program += HLT()
 
     //String -> assembler
-    Files.write(Paths.get(output), program.mkString("\n").getBytes(StandardCharsets.UTF_8))
+    Files.write(Paths.get(as), program.mkString("\n").getBytes(StandardCharsets.UTF_8))
     src.close
 
   /**
