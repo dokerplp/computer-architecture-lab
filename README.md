@@ -136,7 +136,7 @@ print(hw)
 
 ## Транслятор
 
-Реализован в классе **Translator** ***(src/main/scala/translator/Translator)*** 
+Реализован в классе [**Translator**](./src/main/scala/translator/Translator.scala)
 
 Этапы трансляции
 * Загрузка исходного кода
