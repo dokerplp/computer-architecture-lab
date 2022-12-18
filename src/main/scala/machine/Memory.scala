@@ -1,11 +1,12 @@
 package machine
 
-import machine.Memory.*
 import machine.Memory.AddrRegister.*
 import machine.Memory.DataRegister.*
+import machine.Memory.*
 
 import scala.annotation.targetName
-import scala.collection.mutable.{ArrayBuffer as MutableList, Map as MutableMap}
+import scala.collection.mutable.{ArrayBuffer => MutableList}
+import scala.collection.mutable.{Map => MutableMap}
 import scala.math.*
 
 class Memory:

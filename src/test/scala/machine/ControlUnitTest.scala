@@ -5,8 +5,9 @@ import machine.ControlUnit
 import machine.Memory.AddrRegister.*
 import machine.Memory.DataRegister.*
 import org.mockito.Mockito.*
+import org.scalatest.BeforeAndAfter
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funsuite.AnyFunSuite
-import org.scalatest.{BeforeAndAfter, BeforeAndAfterEach}
 import org.scalatestplus.mockito.MockitoSugar
 
 class ControlUnitTest extends AnyFunSuite

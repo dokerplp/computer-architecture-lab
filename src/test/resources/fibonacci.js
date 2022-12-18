@@ -11,5 +11,4 @@ while (n)
 x = y
 y += t
 n--
-end
-while
+end while

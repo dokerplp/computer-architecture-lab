@@ -1,8 +1,8 @@
 package machine
 
 import exception.HLTException
-import machine.AddressedCommand.*
 import machine.AddressedCommand.Type.ABSOLUTE
+import machine.AddressedCommand.*
 import machine.UnaddressedCommand.*
 import org.scalatest.funsuite.AnyFunSuite
 

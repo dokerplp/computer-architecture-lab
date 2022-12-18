@@ -5,8 +5,8 @@ import exception.EOFException
 class Device:
 
   var IO: Int = 0
-  var input: List[Int] = List()
-  var output: List[Int] = List()
+  var input: List[Int] = List.empty
+  var output: List[Int] = List.empty
   private var ix = 0
 
   def read(): Unit =

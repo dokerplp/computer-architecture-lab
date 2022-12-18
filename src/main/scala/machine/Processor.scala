@@ -2,7 +2,8 @@ package machine
 
 import machine.Memory.AddrRegister.*
 import machine.Memory.DataRegister.*
-import util.Binary.{hex, m16}
+import util.Binary.hex
+import util.Binary.m16
 
 import scala.annotation.tailrec
 

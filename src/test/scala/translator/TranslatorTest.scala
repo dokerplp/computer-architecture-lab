@@ -3,7 +3,8 @@ package translator
 import org.scalatest.funsuite.AnyFunSuite
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Paths}
+import java.nio.file.Files
+import java.nio.file.Paths
 import scala.io.Source
 
 class TranslatorTest extends AnyFunSuite {

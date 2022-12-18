@@ -2,9 +2,10 @@ package machine
 
 import exception.HLTException
 import machine.AddressedCommand.*
+import machine.Memory.AddrRegister
 import machine.Memory.AddrRegister.*
+import machine.Memory.DataRegister
 import machine.Memory.DataRegister.*
-import machine.Memory.{AddrRegister, DataRegister}
 import machine.UnaddressedCommand.*
 import util.Binary.*
 
@@ -17,11 +18,11 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
   /**
    * Log in format (TICK, DATA REGISTERS, ADDRESS REGISTERS)
    */
-  private var _log: List[(Int, Map[DataRegister, Int], Map[AddrRegister, Int])] = List()
+  private var _log: List[(Int, Map[DataRegister, Int], Map[AddrRegister, Int])] = List.empty
 
   def log: List[(Int, Map[DataRegister, Int], Map[AddrRegister, Int])] = _log
 
-  def freeLog(): Unit = _log = List()
+  def freeLog(): Unit = _log = List.empty
 
   def writeIP(): Unit =
     memory.reg(IP) = device.IO
@@ -187,7 +188,7 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
    * Add entry to log
    */
   private def logEntry(): Unit =
-    _log = _log :+ (tg.tact, Map() ++ memory.dataRegisters, Map() ++ memory.addrRegisters)
+    _log = _log :+ (tg.tact, Map.empty ++ memory.dataRegisters, Map.empty ++ memory.addrRegisters)
 
   private def loadWithDR(): Unit =
     memory.reg(AR) = memory.reg(DR)

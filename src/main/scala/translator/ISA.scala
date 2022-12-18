@@ -1,14 +1,18 @@
 package translator
 
 import exception.HLTException
+import machine.AddressedCommand
 import machine.AddressedCommand.Type.*
-import machine.{AddressedCommand, UnaddressedCommand, User}
+import machine.UnaddressedCommand
+import machine.User
 import util.Binary.hex
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Paths}
+import java.nio.file.Files
+import java.nio.file.Paths
 import scala.annotation.tailrec
-import scala.collection.mutable.{ArrayBuffer as MutableList, Map as MutableMap}
+import scala.collection.mutable.{ArrayBuffer => MutableList}
+import scala.collection.mutable.{Map => MutableMap}
 import scala.io.Source
 
 class ISA:
@@ -40,7 +44,7 @@ class ISA:
     val input: List[Int] = inSrc.getLines().toList.mkString.chars().toArray.toList :+ 0
 
     setLabels(lines, 0)
-    val instructions = parse(lines, List())
+    val instructions = parse(lines, List.empty)
 
     user.device.input = input
     user.load(instructions, addr)
@@ -101,16 +105,17 @@ class ISA:
    */
   @tailrec
   private def parse(lines: List[String], instructions: List[Int]): List[Int] =
-    if (lines.isEmpty) return instructions
-    lines.head match
-      case addressedCommandRegex(_, com, arg) if com != "ORG" =>
-        parse(lines.tail, instructions :+ toBinary(com, arg))
-      case unaddressedCommandOrDataRegex(_, com) =>
-        val un = UnaddressedCommand.parse(com)
-        if (un.isDefined) parse(lines.tail, instructions :+ un.get.toBinary)
-        else if (hexRegex.matches(com)) parse(lines.tail, instructions :+ hex(com))
-        else parse(lines.tail, instructions :+ labels(com))
-      case _ => parse(lines.tail, instructions)
+    if (lines.nonEmpty) {
+      lines.head match
+        case addressedCommandRegex(_, com, arg) if com != "ORG" =>
+          parse(lines.tail, instructions :+ toBinary(com, arg))
+        case unaddressedCommandOrDataRegex(_, com) =>
+          val un = UnaddressedCommand.parse(com)
+          if (un.isDefined) parse(lines.tail, instructions :+ un.get.toBinary)
+          else if (hexRegex.matches(com)) parse(lines.tail, instructions :+ hex(com))
+          else parse(lines.tail, instructions :+ labels(com))
+        case _ => parse(lines.tail, instructions)
+    } else instructions
 
 
 

@@ -2,4 +2,4 @@ image: sbtscala/scala-sbt:openjdk-8u342_1.8.0_3.2.1
 
 test:
   script:
-    - sbt clean jacoco
+    - sbt clean scalafixAll jacoco

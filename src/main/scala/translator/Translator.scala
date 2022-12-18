@@ -1,17 +1,21 @@
 package translator
 
 import exception.TranslationException
-import machine.AddressedCommand.*
 import machine.AddressedCommand.Type.*
+import machine.AddressedCommand.*
 import machine.UnaddressedCommand.*
 import translator.Translator.*
 
-import java.io.{File, FileReader, PrintWriter}
+import java.io.File
+import java.io.FileReader
+import java.io.PrintWriter
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Paths}
+import java.nio.file.Files
+import java.nio.file.Paths
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.collection.mutable.{ArrayBuffer as MutableList, Map as MutableMap}
+import scala.collection.mutable.{ArrayBuffer => MutableList}
+import scala.collection.mutable.{Map => MutableMap}
 import scala.io.Source
 
 class Translator:

@@ -2,7 +2,8 @@ package integration
 
 import machine.User
 import org.scalatest.funsuite.AnyFunSuite
-import translator.{ISA, Translator}
+import translator.ISA
+import translator.Translator
 
 import scala.io.Source
 
