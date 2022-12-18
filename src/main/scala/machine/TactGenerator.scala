@@ -6,6 +6,6 @@ class TactGenerator:
   def tact: Int = _tact
 
   def tick(): Unit = _tact += 1
-  
+
   def clean(): Unit = _tact = 0
 

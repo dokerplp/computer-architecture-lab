@@ -7,7 +7,7 @@ import translator.{ISA, Translator}
 import scala.io.Source
 
 class IntegrationTest extends AnyFunSuite {
-  
+
   test("hello world test") {
     val js = "./lang/helloWorld.js"
     val as = "./lang/helloWorld.as"

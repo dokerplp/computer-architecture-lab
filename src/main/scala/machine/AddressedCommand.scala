@@ -1,9 +1,9 @@
 package machine
 
-import util.Binary.hex
 import exception.TranslationException
 import machine.AddressedCommand.Type
 import machine.AddressedCommand.Type.*
+import util.Binary.hex
 
 enum AddressedCommand(val mnemonic: String, val binary: Character):
   case ADD extends AddressedCommand("ADD", '1')
@@ -16,6 +16,7 @@ enum AddressedCommand(val mnemonic: String, val binary: Character):
 
   /**
    * Mnemonic constructor
+   *
    * @param label - argument
    * @param _type - addressing type
    * @return mnemonic
@@ -28,8 +29,9 @@ enum AddressedCommand(val mnemonic: String, val binary: Character):
 
   /**
    * Binary format of command
+   *
    * @param _type - addressing type
-   * @param arg - argument for checking word size
+   * @param arg   - argument for checking word size
    * @return command in binary format
    */
   def toBinary(_type: Type, arg: Int): Int =

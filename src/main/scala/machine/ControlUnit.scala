@@ -2,11 +2,11 @@ package machine
 
 import exception.HLTException
 import machine.AddressedCommand.*
-import machine.Memory.{AddrRegister, DataRegister}
 import machine.Memory.AddrRegister.*
 import machine.Memory.DataRegister.*
+import machine.Memory.{AddrRegister, DataRegister}
 import machine.UnaddressedCommand.*
-import util.Binary._
+import util.Binary.*
 
 import java.util.zip.DataFormatException
 import scala.math.*
@@ -23,12 +23,6 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
 
   def freeLog(): Unit = _log = List()
 
-  /**
-   * Add entry to log
-   */
-  private def logEntry(): Unit =
-    _log = _log :+ (tg.tact, Map() ++ memory.dataRegisters, Map() ++ memory.addrRegisters)
-
   def writeIP(): Unit =
     memory.reg(IP) = device.IO
     tg.tick()
@@ -39,18 +33,6 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
     tg.tick()
     memory.reg ++ IP
     memory.mem(memory.reg(AR)) = memory.reg(DR)
-    tg.tick()
-
-  private def loadWithDR(): Unit =
-    memory.reg(AR) = memory.reg(DR)
-    tg.tick()
-    memory.reg(DR) = memory.mem(memory.reg(AR))
-    tg.tick()
-
-  private def loadWithIP(): Unit =
-    memory.reg(AR) = memory.reg(IP)
-    tg.tick()
-    memory.reg(DR) = memory.mem(memory.reg(AR))
     tg.tick()
 
   def operandFetch(): Unit =
@@ -101,14 +83,12 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
       case JUMP.binary => jump()
       case JZ.binary => jz()
 
-
   def add(): Unit =
     (memory.reg +++ AC)(memory.reg(DR))
     tg.tick()
 
     logEntry()
     commandFetch();
-
 
   def sub(): Unit =
     (memory.reg --- AC)(memory.reg(DR))
@@ -117,7 +97,6 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
     logEntry()
     commandFetch()
 
-
   def loop(): Unit =
     if (memory.reg(DR) > 0) memory.reg ++ IP
     tg.tick()
@@ -125,14 +104,12 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
     logEntry()
     commandFetch()
 
-
   def ld(): Unit =
     memory.reg(AC) = memory.reg(DR)
     tg.tick()
 
     logEntry()
     commandFetch()
-
 
   def st(): Unit =
     memory.reg(DR) = m11(memory.reg(DR))
@@ -146,7 +123,6 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
     logEntry()
     commandFetch()
 
-
   def jump(): Unit =
     memory.reg(DR) = m11(memory.reg(DR))
     memory.reg(IP) = memory.reg(DR)
@@ -155,7 +131,6 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
     logEntry()
     commandFetch()
 
-
   def jz(): Unit =
     if (memory.zero) jump()
     else {
@@ -163,16 +138,13 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
       commandFetch()
     }
 
-
   def _null(): Unit =
     logEntry()
     commandFetch()
 
-
   def hlt(): Unit =
     logEntry()
     throw new HLTException("Program finished by HLT instruction")
-
 
   def cla(): Unit =
     memory.reg(AC) = 0
@@ -181,7 +153,6 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
     logEntry()
     commandFetch()
 
-
   def inc(): Unit =
     memory.reg ++ AC
     tg.tick()
@@ -189,14 +160,12 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
     logEntry()
     commandFetch()
 
-
   def dec(): Unit =
     memory.reg -- AC
     tg.tick()
 
     logEntry()
     commandFetch()
-
 
   def out(): Unit =
     device.IO = memory.reg(AC)
@@ -206,7 +175,6 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
     logEntry()
     commandFetch()
 
-
   def in(): Unit =
     device.read()
     memory.reg(AC) = device.IO
@@ -214,3 +182,21 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
 
     logEntry()
     commandFetch()
+
+  /**
+   * Add entry to log
+   */
+  private def logEntry(): Unit =
+    _log = _log :+ (tg.tact, Map() ++ memory.dataRegisters, Map() ++ memory.addrRegisters)
+
+  private def loadWithDR(): Unit =
+    memory.reg(AR) = memory.reg(DR)
+    tg.tick()
+    memory.reg(DR) = memory.mem(memory.reg(AR))
+    tg.tick()
+
+  private def loadWithIP(): Unit =
+    memory.reg(AR) = memory.reg(IP)
+    tg.tick()
+    memory.reg(DR) = memory.mem(memory.reg(AR))
+    tg.tick()

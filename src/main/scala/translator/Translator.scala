@@ -17,13 +17,22 @@ import scala.io.Source
 class Translator:
   private val nums: MutableMap[String, Int] = MutableMap()
   private val strings: MutableMap[String, String] = MutableMap()
-  private var program: MutableList[String] = MutableList()
   private val loops: mutable.Stack[Int] = mutable.Stack()
+  private val intRegex = """int\s+(\w+)\s+=\s+(.*)""".r
+  private val stringRegex = """string\s+(\w+)\s+=\s+"(.*)"""".r
+  private val changeIntRegex = """(\w+)\s+=(.*)""".r
+  private val whileRegex = """while\s+\((\w+)\)""".r
+  private val endWhileRegex = """end while""".r
+  private val expressionRegex = """(\w+)\s*([+-])\s*(.+)""".r
+  private val updateExpressionRegex = """(\w+)(\+\+|--)""".r
+  private val printFunctionRegex = """print\((\w+)\)""".r
+  private val readFunctionRegex = """read\((\w+)\)""".r
+  private var program: MutableList[String] = MutableList()
   private var loop = 0
-
 
   /**
    * Translation javascript code to assembler
+   *
    * @param js - input file (javascript)
    * @param as - output file (assembler)
    */
@@ -69,7 +78,6 @@ class Translator:
     }
     program = data ++ program
 
-
   private def nameOrNum(s: String): Int =
     if (isNumber(s)) toNumber(s) else nums(s)
 
@@ -82,6 +90,7 @@ class Translator:
           if (sign == "+") helper(tail, 1, acc + mul * nameOrNum(name))
           else helper(tail, -1, acc + mul * nameOrNum(name))
         case x => acc + nameOrNum(x)
+
     helper(expr, 1, 0)
 
   private def updateExpression(name: String, operand: String): Unit =
@@ -104,6 +113,7 @@ class Translator:
             if (sign == "+") helper(tail, true)
             else helper(tail, false)
           case x => program += instr(x, plus)
+
       helper(expr, true)
 
     program += CLA()
@@ -153,24 +163,18 @@ class Translator:
     program += IN()
     program += ST(arg, ABSOLUTE)
 
-
-  private val intRegex = """int\s+(\w+)\s+=\s+(.*)""".r
-  private val stringRegex = """string\s+(\w+)\s+=\s+"(.*)"""".r
-  private val changeIntRegex = """(\w+)\s+=(.*)""".r
-  private val whileRegex = """while\s+\((\w+)\)""".r
-  private val endWhileRegex = """end while""".r
-  private val expressionRegex = """(\w+)\s*([+-])\s*(.+)""".r
-  private val updateExpressionRegex = """(\w+)(\+\+|--)""".r
-  private val printFunctionRegex = """print\((\w+)\)""".r
-  private val readFunctionRegex = """read\((\w+)\)""".r
-
 object Translator:
 
   private def lBegin(loop: Int) = s"loop$loop"
+
   private def lEnd(loop: Int) = s"end$loop"
+
   private def mkPtr(label: String): String = s"${label}ptr"
+
   private def label(label: String, body: String): String = s"$label: $body"
+
   private def isNumber(s: String): Boolean = s.forall(c => c.isDigit)
+
   private def toNumber(s: String): Int = s.toInt
 
 

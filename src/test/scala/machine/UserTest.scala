@@ -28,7 +28,7 @@ class UserTest extends AnyFunSuite {
     val loop = (-1, 8)
     val end = (-1, 22)
 
-    val program = List (
+    val program = List(
       t._1,
       x1._1,
       x2._1,

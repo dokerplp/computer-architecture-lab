@@ -6,8 +6,9 @@ class User:
 
   /**
    * Load one instruction to processor
+   *
    * @param instr - instruction code
-   * @param addr - address where instruction must be 
+   * @param addr  - address where instruction must be 
    */
   def load(instr: Int, addr: Int): Unit =
     device.IO = addr
@@ -17,8 +18,9 @@ class User:
 
   /**
    * Load lis of instructions to processor
+   *
    * @param instructions - list of instructions
-   * @param start - address of the first instruction
+   * @param start        - address of the first instruction
    */
   def load(instructions: List[Int], start: Int): Unit =
     device.IO = start
@@ -30,6 +32,7 @@ class User:
 
   /**
    * Model start
+   *
    * @param ip - first address of the instruction
    */
   def run(ip: Int): Unit = processor.startProgram(ip)

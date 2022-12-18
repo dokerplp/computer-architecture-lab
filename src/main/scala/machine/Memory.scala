@@ -25,7 +25,7 @@ class Memory:
      * Increase register by 1
      */
     @targetName("registerSubOne")
-    def ++(r: (DataRegister | AddrRegister)): Unit =
+    def ++(r: DataRegister | AddrRegister): Unit =
       r match
         case d: DataRegister => dataRegisters(d) = fixData(dataRegisters(d) + 1)
         case a: AddrRegister => addrRegisters(a) = fixAddr(addrRegisters(a) + 1)
@@ -35,7 +35,7 @@ class Memory:
      * Decrease register by 1
      */
     @targetName("registerAddOne")
-    def --(r: (DataRegister | AddrRegister)): Unit =
+    def --(r: DataRegister | AddrRegister): Unit =
       r match
         case d: DataRegister => dataRegisters(d) = fixData(dataRegisters(d) - 1)
         case a: AddrRegister => addrRegisters(a) = fixAddr(addrRegisters(a) - 1)
@@ -45,7 +45,7 @@ class Memory:
      * Increase register by value
      */
     @targetName("registerAdd")
-    def +++(r: (DataRegister | AddrRegister))(value: Int): Unit =
+    def +++(r: DataRegister | AddrRegister)(value: Int): Unit =
       r match
         case d: DataRegister => dataRegisters(d) = fixData(dataRegisters(d) + value)
         case a: AddrRegister => addrRegisters(a) = fixAddr(addrRegisters(a) + value)
@@ -55,7 +55,7 @@ class Memory:
      * Decrease register by value
      */
     @targetName("registerSub")
-    def ---(r: (DataRegister | AddrRegister))(value: Int): Unit =
+    def ---(r: DataRegister | AddrRegister)(value: Int): Unit =
       r match
         case d: DataRegister => dataRegisters(d) = fixData(dataRegisters(d) - value)
         case a: AddrRegister => addrRegisters(a) = fixAddr(addrRegisters(a) - value)
@@ -64,7 +64,7 @@ class Memory:
     /**
      * Set register value
      */
-    def update(r: (DataRegister | AddrRegister), value: Int): Unit =
+    def update(r: DataRegister | AddrRegister, value: Int): Unit =
       r match
         case d: DataRegister => dataRegisters(d) = fixData(value)
         case a: AddrRegister => addrRegisters(a) = fixAddr(value)
@@ -73,7 +73,7 @@ class Memory:
     /**
      * Get register value
      */
-    def apply(r: (DataRegister | AddrRegister)): Int =
+    def apply(r: DataRegister | AddrRegister): Int =
       r match
         case d: DataRegister => dataRegisters(d)
         case a: AddrRegister => addrRegisters(a)

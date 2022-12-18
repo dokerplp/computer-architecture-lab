@@ -25,8 +25,9 @@ class ISA:
 
   /**
    * Translation and execution of assembler
-   * @param as - assembler source
-   * @param in - input data
+   *
+   * @param as  - assembler source
+   * @param in  - input data
    * @param out - output data
    * @param log - program log
    * @param str - result is string or numbers
@@ -58,6 +59,7 @@ class ISA:
 
   /**
    * Parse assembler code to binary format
+   *
    * @param com - command name
    * @param arg - argument
    * @return command in binary command
@@ -72,7 +74,8 @@ class ISA:
 
   /**
    * Parse labels and set addresses for them
-   * @param lines - assembler lines
+   *
+   * @param lines   - assembler lines
    * @param address - current address
    */
   @tailrec
@@ -91,7 +94,8 @@ class ISA:
 
   /**
    * Parse each assembler line
-   * @param lines - assembler lines
+   *
+   * @param lines        - assembler lines
    * @param instructions - parsing result
    * @return instructions
    */

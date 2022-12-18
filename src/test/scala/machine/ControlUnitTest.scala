@@ -1,23 +1,22 @@
 package machine
 
-import org.scalatest.funsuite.AnyFunSuite
-import machine.Memory.AddrRegister._
-import machine.Memory.DataRegister._
 import exception.HLTException
 import machine.ControlUnit
+import machine.Memory.AddrRegister.*
+import machine.Memory.DataRegister.*
 import org.mockito.Mockito.*
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterEach}
 import org.scalatestplus.mockito.MockitoSugar
 
 class ControlUnitTest extends AnyFunSuite
   with BeforeAndAfter
   with BeforeAndAfterEach
-  with MockitoSugar
-{
+  with MockitoSugar {
 
+  val device = new Device
   var tg = new TactGenerator
   var memory = new Memory
-  val device = new Device
   var unit: ControlUnit = new ControlUnit(tg, memory, device)
 
   override def beforeEach(): Unit = {

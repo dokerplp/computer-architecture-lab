@@ -5,7 +5,7 @@ object Binary:
   /**
    * n-th bit
    */
-  def bit(x: Int, n: Int) = (x >> n) & 1
+  def bit(x: Int, n: Int): Int = (x >> n) & 1
 
   /**
    * 8-bit mask

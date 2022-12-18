@@ -18,7 +18,7 @@ private class Processor(device: Device) {
     @tailrec
     def zeros(s: String): String = if (s.length < 8) zeros("0" + s) else s
 
-    def entry(en: (Int, Map[Memory.DataRegister, Int], Map[Memory.AddrRegister, Int])): String = 
+    def entry(en: (Int, Map[Memory.DataRegister, Int], Map[Memory.AddrRegister, Int])): String =
       val tact = zeros(en._1.toHexString)
       val data = en._2
         .map(e => (e._1, zeros(hex(e._2))))

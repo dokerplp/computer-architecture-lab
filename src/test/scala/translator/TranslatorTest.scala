@@ -52,35 +52,35 @@ class TranslatorTest extends AnyFunSuite {
     assert(res == "15 64 228 277 441 490")
   }
 
-   test("fibonacci numbers test") {
-     val code =
-       """
-         |int x = 1
-         |int y = 1
-         |int n = 5
-         |int t = 1
-         |while (n)
-         |    t = x
-         |    x = y
-         |    y = y + t
-         |    n--
-         |end while
-         |print(y)
-         |""".stripMargin
+  test("fibonacci numbers test") {
+    val code =
+      """
+        |int x = 1
+        |int y = 1
+        |int n = 5
+        |int t = 1
+        |while (n)
+        |    t = x
+        |    x = y
+        |    y = y + t
+        |    n--
+        |end while
+        |print(y)
+        |""".stripMargin
 
-     val res = compileAndRun(code)
-     assert(res == "13")
-   }
+    val res = compileAndRun(code)
+    assert(res == "13")
+  }
 
-   test("hello world test") {
-     val code =
-       """
-         |string hw = "hello world!"
-         |print(hw)
-         |""".stripMargin
+  test("hello world test") {
+    val code =
+      """
+        |string hw = "hello world!"
+        |print(hw)
+        |""".stripMargin
 
-     val res = compileAndRun(code, true)
-     assert(res == "hello world!")
-   }
+    val res = compileAndRun(code, true)
+    assert(res == "hello world!")
+  }
 
 }
