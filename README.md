@@ -19,15 +19,14 @@
 ## Язык программирования
 
 Использована упрощенная версия javascript.
-* Объявление переменной через ключевое слово var
-* Доступны переменные типа **number** и **string**
+* Доступны переменные типа **int** и **string**
 * Все переменные должны быть декларированы единожды, декларация в цикле ведет к тому, что значение переменной не изменится
-* Доступен цикл **while(num)**: цикл выполняется до тех пор, пока значение переменной num > 0
+* Доступен цикл **while(num) ... end while**: цикл выполняется до тех пор, пока значение переменной num > 0
 * Функция **print(num | string)** передает значение переменной в выходной буфер
 * Функция **read()** считывает значение из входного буфера
 * Операции ветвлений не предусмотрены
-* Разрешенные математические операции: **+** (бинарный плюс), *-** (бинарный минус), **=** (присваивание), **+=** (a += b ~ a = a + b), **-=** (a -= b ~ a = a - b)
-* Аргументами операций могут выступать значения **number** и переменные этого типа
+* Разрешенные математические операции: **+** (бинарный плюс), *-** (бинарный минус), **=** (присваивание)
+* Аргументами операций могут выступать значения **int** и переменные этого типа
 
 ### BNF
 
@@ -35,42 +34,44 @@
 
 `<term> ::= <variable initialization> | <while loop> | <print function> | <term> <term>`
 
-`<variable initialization> ::= var <name> = <value>`
+`<variable initialization> ::= <type> <name>`
 
-`<name> ::= [a-zA-Z]+`
+`<type> ::= <int> | <string>`
 
-`<value> ::= <number> | <string>`
-
-`<value> ::= javascript number`
+`<int> ::= javascript number`
 
 `<string> ::= javascript string`
 
+`<name> ::= [a-zA-Z]+`
+
 `<while loop> ::= while (<number>) { <term> }` 
 
-`<operation> ::= + | - | += | -=`
+`<operation> ::= + | - `
 
-`<print> ::= print(<value>)`
+`<print> ::= print(<name>)`
+
+`<read> ::= read(<name>)`
+
 
 
 ### Пример
 
-```javascript
-//вычисление n-ого числа Фибоначчи
-var x = 1
-var y = 1
-var n = 5
-var t = 1
-while (n) {
+```java
+int x = 1
+int y = 1
+int n = 5
+int t = 1
+while (n)
     t = x
     x = y
-    y += t
+    y = y + t
     n--
-}
+end while
+print(y)
 ```
 
-```javascript
-//вывод строки "hello world!"
-var hw = "hello world!"
+```java
+string hw = "hello world!"
 print(hw)
 ```
 
@@ -140,25 +141,23 @@ print(hw)
 
 Этапы трансляции
 * Загрузка исходного кода
-* Построение AST (библиотека [Rhino](https://github.com/mozilla/rhino))
-* Первый проход: считывание всех используемых переменных, вычисление их значений
-* Запись переменных в файл ассемблера, фиксация адреса начала программы
-* Второй проход: перевод каждой инструкции в ассемблер
+* Рекурсивно проходим по каждой строчке исходного кода, собираем данные о используемых переменных
+* Добавляем переменные в файл ассемблера
 
 ### Пример
 
-```javascript
-//вычисление n-ого числа Фибоначчи
-var x = 1
-var y = 1
-var n = 5
-var t = 1
-while (n) {
+```java
+int x = 1
+int y = 1
+int n = 5
+int t = 1
+while (n)
     t = x
     x = y
-    y += t
+    y = y + t
     n--
-}
+end while
+print(y)
 ```
 
 ```assembly
@@ -169,11 +168,14 @@ n: 5
 start: NULL
 loop1: LOOP $n
 JUMP $end1
-LD $x
+CLA
+ADD $x
 ST $t
-LD $y
+CLA
+ADD $y
 ST $x
-LD $y
+CLA
+ADD $y
 ADD $t
 ST $y
 LD $n
@@ -181,12 +183,13 @@ DEC
 ST $n
 JUMP $loop1
 end1: NULL
+LD $y
+OUT
 HLT
 ```
 
-```javascript
-//вывод строки "hello world!"
-var hw = "hello world!"
+```java
+string hw = "hello world!"
 print(hw)
 ```
 

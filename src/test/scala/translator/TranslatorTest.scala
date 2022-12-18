@@ -14,8 +14,23 @@ class TranslatorTest extends AnyFunSuite {
   val out = "./src/test/resources/test.out"
   val log = "./src/test/resources/test.log"
 
-  test("Translator test") {
+  def compileAndRun(code: String, str: Boolean = false): String = {
+    Files.write(Paths.get(js), code.getBytes(StandardCharsets.UTF_8))
 
+    val translator = new Translator
+    val isa = new ISA
+
+    translator.translate(js, as)
+    isa.translate(as = as, in = in, out = out, log = log, str = str)
+
+    val src = Source.fromFile(out)
+    val res = src.getLines().toList.mkString
+    src.close()
+
+    res
+  }
+
+  test("Translator test") {
     val code: String =
       """
         |int x = 1 + 2 + 3 + 4 + 5
@@ -33,18 +48,39 @@ class TranslatorTest extends AnyFunSuite {
         |print(z)
         |""".stripMargin
 
-    Files.write(Paths.get(js), code.getBytes(StandardCharsets.UTF_8))
-
-    val translator = new Translator
-    val isa = new ISA
-
-    translator.translate(js, as)
-    isa.translate(as = as, in = in, out = out, log = log)
-
-    val src = Source.fromFile(out)
-    val res = src.getLines().toList.mkString
-
+    val res = compileAndRun(code)
     assert(res == "15 64 228 277 441 490")
   }
+
+   test("fibonacci numbers test") {
+     val code =
+       """
+         |int x = 1
+         |int y = 1
+         |int n = 5
+         |int t = 1
+         |while (n)
+         |    t = x
+         |    x = y
+         |    y = y + t
+         |    n--
+         |end while
+         |print(y)
+         |""".stripMargin
+
+     val res = compileAndRun(code)
+     assert(res == "13")
+   }
+
+   test("hello world test") {
+     val code =
+       """
+         |string hw = "hello world!"
+         |print(hw)
+         |""".stripMargin
+
+     val res = compileAndRun(code, true)
+     assert(res == "hello world!")
+   }
 
 }

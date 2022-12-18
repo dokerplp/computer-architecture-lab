@@ -10,7 +10,6 @@ lazy val root = (project in file("."))
 libraryDependencies ++= Seq(
   "org.scalatestplus" %% "mockito-3-4" % "3.2.10.0" % Test,
   "org.scalatest" %% "scalatest" % "3.2.14" % Test,
-  "org.mozilla" % "rhino" % "1.7.14"
 )
 
 

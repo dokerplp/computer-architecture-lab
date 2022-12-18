@@ -4,8 +4,6 @@ import exception.TranslationException
 import machine.AddressedCommand.*
 import machine.AddressedCommand.Type.*
 import machine.UnaddressedCommand.*
-import org.mozilla.javascript.ast.*
-import org.mozilla.javascript.{CompilerEnvirons, Node, Parser, Token}
 import translator.Translator.*
 
 import java.io.{File, FileReader, PrintWriter}
