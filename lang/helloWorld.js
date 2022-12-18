@@ -1,2 +1,2 @@
-var hw = "hello world"
+string hw = "hello world"
 print(hw)

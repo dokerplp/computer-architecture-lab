@@ -8,20 +8,26 @@ n: 3
 start: NULL
 loop1: LOOP $stop
 JUMP $end1
-LD $max
+CLA
+ADD $max
 ST $stop
-LD $acc
+CLA
+ADD $acc
 ADD $x
 ST $acc
-LD #3
+CLA
+ADD #3
 ST $n
 loop2: LOOP $n
 JUMP $end2
-LD $x
+CLA
+ADD $x
 ST $t
-LD $y
+CLA
+ADD $y
 ST $x
-LD $y
+CLA
+ADD $y
 ADD $t
 ST $y
 LD $n
@@ -29,7 +35,8 @@ DEC
 ST $n
 JUMP $loop2
 end2: NULL
-LD $stop
+CLA
+ADD $stop
 SUB $x
 ST $stop
 JUMP $loop1

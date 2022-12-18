@@ -1,10 +1,10 @@
-var x = 1
-var y = 1
-var n = 5
-var t = 1
-while (n) {
+int x = 1
+int y = 1
+int n = 5
+int t = 1
+while (n)
     t = x
     x = y
     y += t
     n--
-}
+end while

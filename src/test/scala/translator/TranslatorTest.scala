@@ -14,16 +14,16 @@ class TranslatorTest extends AnyFunSuite {
   val out = "./src/test/resources/test.out"
   val log = "./src/test/resources/test.log"
 
-  test("Translator test 1") {
+  test("Translator test") {
 
     val code: String =
       """
-        |var x = 1 + 2 + 3 + 4 + 5
+        |int x = 1 + 2 + 3 + 4 + 5
         |print(x)
-        |var y = x + x + 34
+        |int y = x + x + 34
         |print(y)
-        |var z = y - x + 1 + y
-        |z += z
+        |int z = y - x + 1 + y
+        |z = z + z
         |print(z)
         |x = z - x + y
         |y = x - y + z
@@ -45,28 +45,6 @@ class TranslatorTest extends AnyFunSuite {
     val res = src.getLines().toList.mkString
 
     assert(res == "15 64 228 277 441 490")
-  }
-
-  test("Translator test 2") {
-    val code: String =
-      """
-        |var x = "aboba"
-        |var y = x
-        |print(y)
-        |""".stripMargin
-
-    Files.write(Paths.get(js), code.getBytes(StandardCharsets.UTF_8))
-
-    val translator = new Translator
-    val isa = new ISA
-
-    translator.translate(js, as)
-    isa.translate(as = as, in = in, out = out, log = log, str = true)
-
-    val src = Source.fromFile(out)
-    val res = src.getLines().toList.mkString
-
-    assert(res == "aboba")
   }
 
 }
