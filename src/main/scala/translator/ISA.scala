@@ -52,7 +52,7 @@ class ISA:
       val start = labels("start")
       user.run(start)
     } catch {
-      case e: HLTException => println(e.getMessage)
+      case _: HLTException => ()
     }
 
     val res = if (str) user.device.output.map(i => i.toChar).mkString else user.device.output.mkString(" ")
@@ -71,9 +71,9 @@ class ISA:
   private def toBinary(com: String, arg: String): Int =
     val ad = AddressedCommand.parse(com)
     if (ad.isDefined) arg match
-      case absoluteRegex(l) => ad.get.toBinary(ABSOLUTE, labels(l))
-      case directRegex(l) => ad.get.toBinary(DIRECT, l.toInt)
-      case relativeRegex(l) => ad.get.toBinary(RELATIVE, labels(l))
+      case absoluteRegex(l) => ad.get(labels(l), ABSOLUTE)
+      case directRegex(l) => ad.get(l.toInt, DIRECT)
+      case relativeRegex(l) => ad.get(labels(l), RELATIVE)
     else throw new RuntimeException()
 
   /**
@@ -111,7 +111,7 @@ class ISA:
           parse(lines.tail, instructions :+ toBinary(com, arg))
         case unaddressedCommandOrDataRegex(_, com) =>
           val un = UnaddressedCommand.parse(com)
-          if (un.isDefined) parse(lines.tail, instructions :+ un.get.toBinary)
+          if (un.isDefined) parse(lines.tail, instructions :+ un.get.bin)
           else if (hexRegex.matches(com)) parse(lines.tail, instructions :+ hex(com))
           else parse(lines.tail, instructions :+ labels(com))
         case _ => parse(lines.tail, instructions)

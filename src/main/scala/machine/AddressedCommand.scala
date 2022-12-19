@@ -34,7 +34,7 @@ enum AddressedCommand(val mnemonic: String, val binary: Character):
    * @param arg   - argument for checking word size
    * @return command in binary format
    */
-  def toBinary(_type: Type, arg: Int): Int =
+  def apply(arg: Int, _type: Type): Int =
     val com = _type match
       case ABSOLUTE => hex(s"${binary}000")
       case DIRECT => hex(s"${binary}800")

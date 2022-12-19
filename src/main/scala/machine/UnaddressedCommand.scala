@@ -13,7 +13,7 @@ enum UnaddressedCommand(val mnemonic: String, val binary: String):
 
   def apply(): String = mnemonic
 
-  def toBinary: Int = hex(binary)
+  def bin: Int = hex(binary)
 
 
 object UnaddressedCommand:
