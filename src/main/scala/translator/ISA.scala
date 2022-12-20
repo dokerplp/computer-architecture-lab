@@ -14,6 +14,7 @@ import scala.annotation.tailrec
 import scala.collection.mutable.{ArrayBuffer => MutableList}
 import scala.collection.mutable.{Map => MutableMap}
 import scala.io.Source
+import scala.util.control.Exception.ignoring
 
 class ISA:
   private val user = new User
@@ -27,6 +28,7 @@ class ISA:
   private val hexRegex = """[0-9A-F]+""".r
   private var addr = 0
 
+
   /**
    * Translation and execution of assembler
    *
@@ -37,29 +39,40 @@ class ISA:
    * @param str - result is string or numbers
    */
   def translate(as: String, in: String, out: String, log: String, str: Boolean = false): Unit =
-    val src = Source.fromFile(as)
-    val lines: List[String] = src.getLines().toList
-
+    val asSrc = Source.fromFile(as)
     val inSrc = Source.fromFile(in)
+
+    val lines: List[String] = asSrc.getLines().toList
     val input: List[Int] = inSrc.getLines().toList.mkString.chars().toArray.toList :+ 0
 
     setLabels(lines, 0)
-    val instructions = parse(lines, List.empty)
+    val instr = parse(lines, List.empty)
+    val output = start(instr, input, str)
+    
+    Files.write(Paths.get(log), user.processor.log.getBytes(StandardCharsets.UTF_8))
+    Files.write(Paths.get(out), output.getBytes(StandardCharsets.UTF_8))
+    
+    asSrc.close
+    inSrc.close
 
+  /**
+   * Start program
+   * @param instr - instructions
+   * @param input - input buffer
+   * @param str - result is string or numbers
+   * @return output buffer
+   */
+  private def start(instr: List[Int], input: List[Int], str: Boolean): String =
     user.device.input = input
-    user.load(instructions, addr)
-    try {
-      val start = labels("start")
+    user.load(instr, addr)
+
+    val start = labels("start")
+    ignoring(classOf[HLTException]) {
       user.run(start)
-    } catch {
-      case _: HLTException => ()
     }
 
-    val res = if (str) user.device.output.map(i => i.toChar).mkString else user.device.output.mkString(" ")
-    Files.write(Paths.get(log), user.processor.log.getBytes(StandardCharsets.UTF_8))
-    Files.write(Paths.get(out), res.getBytes(StandardCharsets.UTF_8))
-    src.close
-    inSrc.close
+    if (str) user.device.output.map(i => i.toChar).mkString else user.device.output.mkString(" ")
+
 
   /**
    * Parse assembler code to binary format

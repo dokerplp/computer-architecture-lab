@@ -28,10 +28,10 @@ enum AddressedCommand(val mnemonic: String, val binary: Character):
       case RELATIVE => s"$mnemonic ($label)"
 
   /**
-   * Binary format of command
+   * Binary constructor
    *
-   * @param _type - addressing type
    * @param arg   - argument for checking word size
+   * @param _type - addressing type
    * @return command in binary format
    */
   def apply(arg: Int, _type: Type): Int =

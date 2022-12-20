@@ -16,13 +16,14 @@ import scala.util.matching.Regex
 class ControlUnit(private val tg: TactGenerator, private val memory: Memory, private val device: Device):
 
   /**
-   * Log in format (TICK, DATA REGISTERS, ADDRESS REGISTERS)
+   * Log format (TICK, DATA REGISTERS, ADDRESS REGISTERS)
    */
   private var _log: List[(Int, Map[DataRegister, Int], Map[AddrRegister, Int])] = List.empty
 
   def log: List[(Int, Map[DataRegister, Int], Map[AddrRegister, Int])] = _log
 
-  def freeLog(): Unit = _log = List.empty
+  def freeLog(): Unit = 
+    _log = List.empty
 
   def writeIP(): Unit =
     memory.reg(IP) = device.IO
@@ -89,7 +90,7 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
     tg.tick()
 
     logEntry()
-    commandFetch();
+    commandFetch()
 
   def sub(): Unit =
     (memory.reg --- AC)(memory.reg(DR))
@@ -183,10 +184,7 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
 
     logEntry()
     commandFetch()
-
-  /**
-   * Add entry to log
-   */
+  
   private def logEntry(): Unit =
     _log = _log :+ (tg.tact, Map.empty ++ memory.dataRegisters, Map.empty ++ memory.addrRegisters)
 
