@@ -14,42 +14,47 @@ import scala.math.*
 import scala.util.matching.Regex
 
 class ControlUnit(private val tg: TactGenerator, private val memory: Memory, private val device: Device):
+  type Tick = Int
+  type DataRegs = Map[DataRegister, Int]
+  type AddrRegs = Map[AddrRegister, Int]
+  type Log = (Tick, DataRegs, AddrRegs)
 
-  /**
-   * Log format (TICK, DATA REGISTERS, ADDRESS REGISTERS)
-   */
-  private var _log: List[(Int, Map[DataRegister, Int], Map[AddrRegister, Int])] = List.empty
+  private val mem: memory.Mem = memory.mem
+  private val reg: memory.Reg = memory.reg
+  
+  private var _log: List[Log] = List.empty
 
-  def log: List[(Int, Map[DataRegister, Int], Map[AddrRegister, Int])] = _log
+  def log: List[Log] = _log
 
-  def freeLog(): Unit = 
+  def freeLog(): Unit =
     _log = List.empty
 
+
   def writeIP(): Unit =
-    memory.reg(IP) = device.IO
+    reg(IP) = device.IO
     tg.tick()
 
   def input(): Unit =
-    memory.reg(DR) = device.IO
-    memory.reg(AR) = memory.reg(IP)
+    reg(DR) = device.IO
+    reg(AR) = reg(IP)
     tg.tick()
-    memory.reg ++ IP
-    memory.mem(memory.reg(AR)) = memory.reg(DR)
+    reg ++ IP
+    mem(reg(AR)) = reg(DR)
     tg.tick()
 
   def operandFetch(): Unit =
     def absolute(): Unit =
-      memory.reg(DR) = m11(memory.reg(DR))
+      reg(DR) = m11(reg(DR))
       tg.tick()
       loadWithDR()
 
-    if (bit(memory.reg(DR), 11) == 0) absolute()
-    else if (bit(memory.reg(DR), 10) == 0) {
-      memory.reg(DR) = m8(memory.reg(DR))
+    if (bit(reg(DR), 11) == 0) absolute()
+    else if (bit(reg(DR), 10) == 0) {
+      reg(DR) = m8(reg(DR))
       tg.tick()
     }
     else {
-      memory.reg(DR) = m8(memory.reg(DR))
+      reg(DR) = m8(reg(DR))
       tg.tick()
       loadWithDR()
       absolute()
@@ -58,12 +63,12 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
   def commandFetch(): Unit =
     //stage 1: instr -> CR
     loadWithIP()
-    memory.reg ++ IP
-    memory.reg(CR) = memory.reg(DR)
+    reg ++ IP
+    reg(CR) = reg(DR)
     tg.tick()
 
     //stage 2: call command
-    val instr: String = hex(memory.reg(CR))
+    val instr: String = hex(reg(CR))
     //Unaddressed commands
     instr match
       case NULL.binary => _null()
@@ -86,48 +91,48 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
       case JZ.binary => jz()
 
   def add(): Unit =
-    (memory.reg +++ AC)(memory.reg(DR))
+    reg.add(AC, reg(DR))
     tg.tick()
 
     logEntry()
     commandFetch()
 
   def sub(): Unit =
-    (memory.reg --- AC)(memory.reg(DR))
+    reg.sub(AC, reg(DR))
     tg.tick()
 
     logEntry()
     commandFetch()
 
   def loop(): Unit =
-    if (memory.reg(DR) > 0) memory.reg ++ IP
+    if (reg(DR) > 0) reg ++ IP
     tg.tick()
 
     logEntry()
     commandFetch()
 
   def ld(): Unit =
-    memory.reg(AC) = memory.reg(DR)
+    reg(AC) = reg(DR)
     tg.tick()
 
     logEntry()
     commandFetch()
 
   def st(): Unit =
-    memory.reg(DR) = m11(memory.reg(DR))
+    reg(DR) = m11(reg(DR))
     tg.tick()
-    memory.reg(AR) = memory.reg(DR)
-    memory.reg(DR) = memory.reg(AC)
+    reg(AR) = reg(DR)
+    reg(DR) = reg(AC)
     tg.tick()
-    memory.mem(memory.reg(AR)) = memory.reg(DR)
+    mem(reg(AR)) = reg(DR)
     tg.tick()
 
     logEntry()
     commandFetch()
 
   def jump(): Unit =
-    memory.reg(DR) = m11(memory.reg(DR))
-    memory.reg(IP) = memory.reg(DR)
+    reg(DR) = m11(reg(DR))
+    reg(IP) = reg(DR)
     tg.tick()
 
     logEntry()
@@ -149,28 +154,28 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
     throw new HLTException("Program finished by HLT instruction")
 
   def cla(): Unit =
-    memory.reg(AC) = 0
+    reg(AC) = 0
     tg.tick()
 
     logEntry()
     commandFetch()
 
   def inc(): Unit =
-    memory.reg ++ AC
+    reg ++ AC
     tg.tick()
 
     logEntry()
     commandFetch()
 
   def dec(): Unit =
-    memory.reg -- AC
+    reg -- AC
     tg.tick()
 
     logEntry()
     commandFetch()
 
   def out(): Unit =
-    device.IO = memory.reg(AC)
+    device.IO = reg(AC)
     device.write()
     tg.tick()
 
@@ -179,23 +184,23 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
 
   def in(): Unit =
     device.read()
-    memory.reg(AC) = device.IO
+    reg(AC) = device.IO
     tg.tick()
 
     logEntry()
     commandFetch()
-  
+
   private def logEntry(): Unit =
-    _log = _log :+ (tg.tact, Map.empty ++ memory.dataRegisters, Map.empty ++ memory.addrRegisters)
+    _log = _log :+ (tg.tact, memory.dataRegs, memory.addrRegs)
 
   private def loadWithDR(): Unit =
-    memory.reg(AR) = memory.reg(DR)
+    reg(AR) = reg(DR)
     tg.tick()
-    memory.reg(DR) = memory.mem(memory.reg(AR))
+    reg(DR) = mem(reg(AR))
     tg.tick()
 
   private def loadWithIP(): Unit =
-    memory.reg(AR) = memory.reg(IP)
+    reg(AR) = reg(IP)
     tg.tick()
-    memory.reg(DR) = memory.mem(memory.reg(AR))
+    reg(DR) = mem(reg(AR))
     tg.tick()

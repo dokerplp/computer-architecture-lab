@@ -12,19 +12,14 @@ private class Processor(device: Device) {
   val tg: TactGenerator = new TactGenerator
   val controlUnit = new ControlUnit(tg, memory, device)
 
-  /**
-   * Takes logs from Control Unit and makes them pretty
-   */
   def log: String = {
     @tailrec
     def zeros(s: String): String = if (s.length < 8) zeros("0" + s) else s
 
-    def entry(en: (Int, Map[Memory.DataRegister, Int], Map[Memory.AddrRegister, Int])): String =
+    def entry(en: controlUnit.Log): String =
       val tact = zeros(en._1.toHexString)
-      val data = en._2
-        .map(e => (e._1, zeros(hex(e._2))))
-      val addr = en._3
-        .map(e => (e._1, zeros(hex(e._2))))
+      val data = en._2.map(e => (e._1, zeros(hex(e._2))))
+      val addr = en._3.map(e => (e._1, zeros(hex(e._2))))
 
       s"|$tact|${data(AC)}|${data(DR)}|${data(CR)}|${addr(IP)}|${addr(AR)}|\n"
 
@@ -35,9 +30,7 @@ private class Processor(device: Device) {
     sb.toString
   }
 
-  /**
-   * Model start
-   */
+  
   def startProgram(ip: Int): Unit =
     controlUnit.freeLog()
     device.IO = ip

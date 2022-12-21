@@ -21,5 +21,5 @@ object UnaddressedCommand:
   /**
    * Finds element of enum by mnemonic
    */
-  def parse(s: String): Option[UnaddressedCommand] =
+  def find(s: String): Option[UnaddressedCommand] =
     UnaddressedCommand.values.find(c => c.mnemonic == s)

@@ -1,8 +1,8 @@
 package machine
 
 import exception.TranslationException
-import machine.AddressedCommand.Type
-import machine.AddressedCommand.Type.*
+import machine.AddressedCommand.Addressing
+import machine.AddressedCommand.Addressing.*
 import util.Binary.hex
 
 enum AddressedCommand(val mnemonic: String, val binary: Character):
@@ -14,43 +14,32 @@ enum AddressedCommand(val mnemonic: String, val binary: Character):
   case JUMP extends AddressedCommand("JUMP", '6')
   case JZ extends AddressedCommand("JZ", '7')
 
-  /**
-   * Mnemonic constructor
-   *
-   * @param label - argument
-   * @param _type - addressing type
-   * @return mnemonic
-   */
-  def apply(label: String, _type: Type): String =
-    _type match
-      case ABSOLUTE => s"$mnemonic $$$label"
-      case DIRECT => s"$mnemonic #$label"
-      case RELATIVE => s"$mnemonic ($label)"
+  def apply(arg: String, addr: Addressing): String = mkMnemonic(arg, addr)
 
-  /**
-   * Binary constructor
-   *
-   * @param arg   - argument for checking word size
-   * @param _type - addressing type
-   * @return command in binary format
-   */
-  def apply(arg: Int, _type: Type): Int =
-    val com = _type match
+  private def mkMnemonic(arg: String, addr: Addressing): String =
+    addr match
+      case ABSOLUTE => s"$mnemonic $$$arg"
+      case DIRECT => s"$mnemonic #$arg"
+      case RELATIVE => s"$mnemonic ($arg)"
+
+  def apply(arg: Int, addr: Addressing): Int =
+    val instr = arg + mkBinary(addr)
+    if (instr > Memory.MAX_WORD || instr < Memory.MIN_WORD)
+      throw new TranslationException("Instruction doesn't match word format")
+    else instr
+
+  private def mkBinary(addr: Addressing): Int =
+    addr match
       case ABSOLUTE => hex(s"${binary}000")
       case DIRECT => hex(s"${binary}800")
       case RELATIVE => hex(s"${binary}C00")
-    val instr = com + arg
-    if (instr > Memory.MAX_WORD || instr < Memory.MIN_WORD) throw new TranslationException("Instruction doesn't match word format") else instr
 
 object AddressedCommand:
 
-  /**
-   * Finds element of enum by mnemonic
-   */
-  def parse(s: String): Option[AddressedCommand] =
+  def find(s: String): Option[AddressedCommand] =
     AddressedCommand.values.find(c => c.mnemonic == s)
 
-  enum Type:
+  enum Addressing:
     case ABSOLUTE, DIRECT, RELATIVE
   
 

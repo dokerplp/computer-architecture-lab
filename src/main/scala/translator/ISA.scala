@@ -2,7 +2,7 @@ package translator
 
 import exception.HLTException
 import machine.AddressedCommand
-import machine.AddressedCommand.Type.*
+import machine.AddressedCommand.Addressing.*
 import machine.UnaddressedCommand
 import machine.User
 import util.Binary.hex
@@ -48,18 +48,19 @@ class ISA:
     setLabels(lines, 0)
     val instr = parse(lines, List.empty)
     val output = start(instr, input, str)
-    
+
     Files.write(Paths.get(log), user.processor.log.getBytes(StandardCharsets.UTF_8))
     Files.write(Paths.get(out), output.getBytes(StandardCharsets.UTF_8))
-    
+
     asSrc.close
     inSrc.close
 
   /**
    * Start program
+   *
    * @param instr - instructions
    * @param input - input buffer
-   * @param str - result is string or numbers
+   * @param str   - result is string or numbers
    * @return output buffer
    */
   private def start(instr: List[Int], input: List[Int], str: Boolean): String =
@@ -82,7 +83,7 @@ class ISA:
    * @return command in binary command
    */
   private def toBinary(com: String, arg: String): Int =
-    val ad = AddressedCommand.parse(com)
+    val ad = AddressedCommand.find(com)
     if (ad.isDefined) arg match
       case absoluteRegex(l) => ad.get(labels(l), ABSOLUTE)
       case directRegex(l) => ad.get(l.toInt, DIRECT)
@@ -123,7 +124,7 @@ class ISA:
         case addressedCommandRegex(_, com, arg) if com != "ORG" =>
           parse(lines.tail, instructions :+ toBinary(com, arg))
         case unaddressedCommandOrDataRegex(_, com) =>
-          val un = UnaddressedCommand.parse(com)
+          val un = UnaddressedCommand.find(com)
           if (un.isDefined) parse(lines.tail, instructions :+ un.get.bin)
           else if (hexRegex.matches(com)) parse(lines.tail, instructions :+ hex(com))
           else parse(lines.tail, instructions :+ labels(com))

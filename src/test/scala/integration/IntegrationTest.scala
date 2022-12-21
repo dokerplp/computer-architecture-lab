@@ -11,8 +11,8 @@ import translator.Translator
 
 import scala.io.Source
 
-class IntegrationTest extends AnyWordSpec  {
-  
+class IntegrationTest extends AnyWordSpec {
+
   "The program" should {
     "print \"hello world\"" in {
       val js = "./lang/helloWorld.js"
@@ -30,10 +30,10 @@ class IntegrationTest extends AnyWordSpec  {
       val src = Source.fromFile(out)
       val res = src.getLines().toList.mkString
 
-      res should equal ("hello world")
+      res should equal("hello world")
       src.close()
     }
-    
+
     "print input string" in {
       val js = "./lang/cat.js"
       val as = "./lang/cat.as"
@@ -52,12 +52,12 @@ class IntegrationTest extends AnyWordSpec  {
       val input = srcOut.getLines().toList.mkString
       val output = srcIn.getLines().toList.mkString
 
-      input should equal (output)
-      
+      input should equal(output)
+
       srcOut.close()
       srcIn.close()
     }
-    
+
     "solve Euler Problem 2" in {
       val js = "./lang/euler2.js"
       val as = "./lang/euler2.as"
@@ -74,8 +74,8 @@ class IntegrationTest extends AnyWordSpec  {
       val src = Source.fromFile(out)
       val res = src.getLines().toList.mkString
 
-      res should equal ("4613732")
+      res should equal("4613732")
     }
   }
-  
+
 }

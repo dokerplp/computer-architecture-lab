@@ -1,7 +1,7 @@
 package translator
 
 import exception.TranslationException
-import machine.AddressedCommand.Type.*
+import machine.AddressedCommand.Addressing.*
 import machine.AddressedCommand.*
 import machine.UnaddressedCommand.*
 import translator.Translator.*

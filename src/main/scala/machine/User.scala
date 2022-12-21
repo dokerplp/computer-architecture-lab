@@ -35,7 +35,7 @@ class User:
    *
    * @param ip - first address of the instruction
    */
-  def run(ip: Int): Unit = 
+  def run(ip: Int): Unit =
     processor.startProgram(ip)
 
 

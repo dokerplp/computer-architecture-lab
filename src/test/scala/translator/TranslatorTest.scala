@@ -55,7 +55,7 @@ class TranslatorTest extends AnyWordSpec {
           |""".stripMargin
 
       val res = compileAndRun(code)
-      res should equal ("15 64 228 277 441 490")
+      res should equal("15 64 228 277 441 490")
     }
 
     "correctly calculate fibonacci numbers" in {
@@ -75,7 +75,7 @@ class TranslatorTest extends AnyWordSpec {
           |""".stripMargin
 
       val res = compileAndRun(code)
-      res should equal ("13")
+      res should equal("13")
     }
 
     "print \"hello world!\"" in {
@@ -86,7 +86,7 @@ class TranslatorTest extends AnyWordSpec {
           |""".stripMargin
 
       val res = compileAndRun(code, true)
-      res should equal ("hello world!")
+      res should equal("hello world!")
     }
   }
 

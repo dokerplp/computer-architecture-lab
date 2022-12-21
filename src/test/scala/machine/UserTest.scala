@@ -1,7 +1,7 @@
 package machine
 
 import exception.HLTException
-import machine.AddressedCommand.Type.ABSOLUTE
+import machine.AddressedCommand.Addressing.ABSOLUTE
 import machine.AddressedCommand.*
 import machine.UnaddressedCommand.*
 import org.scalatest.funsuite.AnyFunSuite
@@ -20,9 +20,9 @@ class UserTest extends AnyWordSpec {
 
       user.load(program, 0)
       val data = (0 to 10).map(user.processor.memory.mem(_))
-      data should equal (program)
+      data should equal(program)
     }
-    
+
     "print fibonacci numbers" in {
       //(value, address)
       val t = (0, 0)
@@ -61,11 +61,11 @@ class UserTest extends AnyWordSpec {
       user.load(program, 0)
 
       the[HLTException] thrownBy user.run(4)
-      user.processor.memory.mem(x2._2) should equal (13)
-      user.device.output should equal (List(1, 1, 2, 3, 5, 8, 13))
+      user.processor.memory.mem(x2._2) should equal(13)
+      user.device.output should equal(List(1, 1, 2, 3, 5, 8, 13))
     }
-    
+
   }
 
-    
+
 }
