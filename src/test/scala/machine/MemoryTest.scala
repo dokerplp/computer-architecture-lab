@@ -13,8 +13,8 @@ class MemoryTest extends AnyWordSpec {
       m.reg ++ IP
       m.reg ++ AC
 
-      m.reg(IP) should equal (1)
-      m.reg(AC) should equal (1)
+      m.reg(IP) should equal(1)
+      m.reg(AC) should equal(1)
     }
 
     "decrement on --" in {
@@ -60,7 +60,7 @@ class MemoryTest extends AnyWordSpec {
       val m = new Memory
       m.mem(42) = 228
 
-      m.mem(42) should equal (228)
+      m.mem(42) should equal(228)
     }
   }
 

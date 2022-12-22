@@ -28,40 +28,40 @@ class Memory:
 
   class Reg:
 
+    private def change(d: DataRegister, value: Int): Unit =
+      _dataRegs = _dataRegs updated(d, value)
+      flag()
+
+    private def change(a: AddrRegister, value: Int): Unit =
+      _addrRegs = _addrRegs updated(a, value)
+      flag()
+    
     @targetName("regDec")
     def ++(r: DataRegister | AddrRegister): Unit =
       r match
-        case d: DataRegister => update(d, fixData(_dataRegs(d) + 1))
-        case a: AddrRegister => update(a, fixAddr(_addrRegs(a) + 1))
+        case d: DataRegister => change(d, fixData(_dataRegs(d) + 1))
+        case a: AddrRegister => change(a, fixAddr(_addrRegs(a) + 1))
 
     @targetName("regInc")
     def --(r: DataRegister | AddrRegister): Unit =
       r match
-        case d: DataRegister => update(d, fixData(_dataRegs(d) - 1))
-        case a: AddrRegister => update(a, fixAddr(_addrRegs(a) - 1))
+        case d: DataRegister => change(d, fixData(_dataRegs(d) - 1))
+        case a: AddrRegister => change(a, fixAddr(_addrRegs(a) - 1))
 
     def add(r: DataRegister | AddrRegister, value: Int): Unit =
       r match
-        case d: DataRegister => update(d, fixData(_dataRegs(d) + value))
-        case a: AddrRegister => update(a, fixAddr(_addrRegs(a) + value))
-
-    private def update(d: DataRegister, value: Int): Unit =
-      _dataRegs = _dataRegs updated(d, value)
-      flag()
-
-    private def update(a: AddrRegister, value: Int): Unit =
-      _addrRegs = _addrRegs updated(a, value)
-      flag()
+        case d: DataRegister => change(d, fixData(_dataRegs(d) + value))
+        case a: AddrRegister => change(a, fixAddr(_addrRegs(a) + value))
 
     def sub(r: DataRegister | AddrRegister, value: Int): Unit =
       r match
-        case d: DataRegister => update(d, fixData(_dataRegs(d) - value))
-        case a: AddrRegister => update(a, fixAddr(_addrRegs(a) - value))
+        case d: DataRegister => change(d, fixData(_dataRegs(d) - value))
+        case a: AddrRegister => change(a, fixAddr(_addrRegs(a) - value))
 
     def update(r: DataRegister | AddrRegister, value: Int): Unit =
       r match
-        case d: DataRegister => update(d, fixData(value))
-        case a: AddrRegister => update(a, fixAddr(value))
+        case d: DataRegister => change(d, fixData(value))
+        case a: AddrRegister => change(a, fixAddr(value))
 
     def apply(r: DataRegister | AddrRegister): Int =
       r match

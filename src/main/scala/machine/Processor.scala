@@ -7,7 +7,7 @@ import util.Binary.m16
 
 import scala.annotation.tailrec
 
-private class Processor(device: Device) {
+private class Processor(device: Device):
   val memory: Memory = new Memory
   val tg: TactGenerator = new TactGenerator
   val controlUnit = new ControlUnit(tg, memory, device)
@@ -30,11 +30,11 @@ private class Processor(device: Device) {
     sb.toString
   }
 
-  
+
   def startProgram(ip: Int): Unit =
     controlUnit.freeLog()
     device.IO = ip
     controlUnit.writeIP()
     tg.clean()
     controlUnit.commandFetch()
-}
+

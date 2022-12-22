@@ -21,15 +21,14 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
 
   private val mem: memory.Mem = memory.mem
   private val reg: memory.Reg = memory.reg
-  
+
   private var _log: List[Log] = List.empty
 
   def log: List[Log] = _log
 
   def freeLog(): Unit =
     _log = List.empty
-
-
+  
   def writeIP(): Unit =
     reg(IP) = device.IO
     tg.tick()
@@ -52,8 +51,7 @@ class ControlUnit(private val tg: TactGenerator, private val memory: Memory, pri
     else if (bit(reg(DR), 10) == 0) {
       reg(DR) = m8(reg(DR))
       tg.tick()
-    }
-    else {
+    } else {
       reg(DR) = m8(reg(DR))
       tg.tick()
       loadWithDR()

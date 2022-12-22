@@ -18,7 +18,6 @@ import scala.util.control.Exception.ignoring
 
 class ISA:
   private val _user = new User
-  def user: User = _user
   private val labels: MutableMap[String, Int] = MutableMap()
   private val labelRegex = """(\w+):.*""".r
   private val addressedCommandRegex = """(\w+:\s+)?(\w+)\s+([$#()\w]+)""".r
@@ -29,6 +28,7 @@ class ISA:
   private val hexRegex = """[0-9A-F]+""".r
   private var addr = 0
 
+  def user: User = _user
 
   def translate(as: String, in: String, out: String, log: String, str: Boolean = false): Unit =
     val asSrc = Source.fromFile(as)
