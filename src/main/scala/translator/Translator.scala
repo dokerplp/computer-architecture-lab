@@ -34,12 +34,6 @@ class Translator:
   private var program: MutableList[String] = MutableList()
   private var loop = 0
 
-  /**
-   * Translation javascript code to assembler
-   *
-   * @param js - input file (javascript)
-   * @param as - output file (assembler)
-   */
   def translate(js: String, as: String): Unit =
     val src = Source.fromFile(js)
     val lines = src.getLines().toList.map(s => s.trim)

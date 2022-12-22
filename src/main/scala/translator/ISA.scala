@@ -17,7 +17,8 @@ import scala.io.Source
 import scala.util.control.Exception.ignoring
 
 class ISA:
-  private val user = new User
+  private val _user = new User
+  def user: User = _user
   private val labels: MutableMap[String, Int] = MutableMap()
   private val labelRegex = """(\w+):.*""".r
   private val addressedCommandRegex = """(\w+:\s+)?(\w+)\s+([$#()\w]+)""".r
@@ -29,15 +30,6 @@ class ISA:
   private var addr = 0
 
 
-  /**
-   * Translation and execution of assembler
-   *
-   * @param as  - assembler source
-   * @param in  - input data
-   * @param out - output data
-   * @param log - program log
-   * @param str - result is string or numbers
-   */
   def translate(as: String, in: String, out: String, log: String, str: Boolean = false): Unit =
     val asSrc = Source.fromFile(as)
     val inSrc = Source.fromFile(in)
@@ -45,62 +37,42 @@ class ISA:
     val lines: List[String] = asSrc.getLines().toList
     val input: List[Int] = inSrc.getLines().toList.mkString.chars().toArray.toList :+ 0
 
+    labels("start") = 0
     setLabels(lines, 0)
     val instr = parse(lines, List.empty)
     val output = start(instr, input, str)
 
-    Files.write(Paths.get(log), user.processor.log.getBytes(StandardCharsets.UTF_8))
+    Files.write(Paths.get(log), _user.processor.log.getBytes(StandardCharsets.UTF_8))
     Files.write(Paths.get(out), output.getBytes(StandardCharsets.UTF_8))
 
     asSrc.close
     inSrc.close
 
-  /**
-   * Start program
-   *
-   * @param instr - instructions
-   * @param input - input buffer
-   * @param str   - result is string or numbers
-   * @return output buffer
-   */
   private def start(instr: List[Int], input: List[Int], str: Boolean): String =
-    user.device.input = input
-    user.load(instr, addr)
+    _user.device.input = input
+    _user.load(instr, addr)
 
     val start = labels("start")
     ignoring(classOf[HLTException]) {
-      user.run(start)
+      _user.run(start)
     }
 
-    if (str) user.device.output.map(i => i.toChar).mkString else user.device.output.mkString(" ")
+    if (str) _user.device.output.map(i => i.toChar).mkString else _user.device.output.mkString(" ")
 
-
-  /**
-   * Parse assembler code to binary format
-   *
-   * @param com - command name
-   * @param arg - argument
-   * @return command in binary command
-   */
   private def toBinary(com: String, arg: String): Int =
     val ad = AddressedCommand.find(com)
     if (ad.isDefined) arg match
       case absoluteRegex(l) => ad.get(labels(l), ABSOLUTE)
       case directRegex(l) => ad.get(l.toInt, DIRECT)
       case relativeRegex(l) => ad.get(labels(l), RELATIVE)
-    else throw new RuntimeException()
+    else throw new IllegalArgumentException(s"The unknown instruction \"$com\"")
 
-  /**
-   * Parse labels and set addresses for them
-   *
-   * @param lines   - assembler lines
-   * @param address - current address
-   */
+
   @tailrec
   private def setLabels(lines: List[String], address: Int): Unit =
     if (lines.nonEmpty) {
       lines.head match
-        case addressedCommandRegex("ORG", arg) =>
+        case addressedCommandRegex(_, org, arg) if org == "ORG" =>
           addr = hex(arg)
           setLabels(lines.tail, addr)
         case labelRegex(l) =>
@@ -110,13 +82,6 @@ class ISA:
           setLabels(lines.tail, address + 1)
     }
 
-  /**
-   * Parse each assembler line
-   *
-   * @param lines        - assembler lines
-   * @param instructions - parsing result
-   * @return instructions
-   */
   @tailrec
   private def parse(lines: List[String], instructions: List[Int]): List[Int] =
     if (lines.nonEmpty) {
