@@ -44,7 +44,7 @@
 
 `<name> ::= [a-zA-Z]+`
 
-`<while loop> ::= while (<number>) { <term> }` 
+`<while loop> ::= while (<number>) <term> end while` 
 
 `<operation> ::= + | - `
 
