@@ -6,10 +6,10 @@ class User:
 
   def load(instructions: List[Int], start: Int): Unit =
     device.IO = start
-    processor.controlUnit.writeIP()
+    processor.cu.writeIP()
     instructions.foreach { i =>
       device.IO = i
-      processor.controlUnit.input()
+      processor.cu.input()
     }
 
   def run(ip: Int): Unit =

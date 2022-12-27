@@ -54,7 +54,7 @@ class ISATest extends AnyWordSpec {
           |""".stripMargin
 
       val isa1 = isa(code)
-      isa1.user.processor.memory.reg(Memory.AddrRegister.IP) should equal(3)
+      isa1.user.processor.mem.reg(Memory.AddrRegister.IP) should equal(3)
 
       val code2 =
         """
@@ -65,7 +65,7 @@ class ISATest extends AnyWordSpec {
           |""".stripMargin
 
       val isa2 = isa(code2)
-      isa2.user.processor.memory.reg(Memory.AddrRegister.IP) should equal(0x6F1)
+      isa2.user.processor.mem.reg(Memory.AddrRegister.IP) should equal(0x6F1)
     }
   }
 

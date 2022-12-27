@@ -28,18 +28,34 @@ class ISA:
   private val hexRegex = """[0-9A-F]+""".r
   private var addr = 0
 
+  /**
+   * Get user
+   */
   def user: User = _user
 
+  /**
+   * Translates pseudo-assembler and executes it
+   * @param as - assembler source file
+   * @param in - input buffer source file
+   * @param out - output buffer target file
+   * @param log - output logs file
+   * @param str - is the value of the buffer a string
+   */
   def translate(as: String, in: String, out: String, log: String, str: Boolean = false): Unit =
+    //sources
     val asSrc = Source.fromFile(as)
     val inSrc = Source.fromFile(in)
 
     val lines: List[String] = asSrc.getLines().toList
     val input: List[Int] = inSrc.getLines().toList.mkString.chars().toArray.toList :+ 0
 
+    //initialize label "start" if missing
     labels("start") = 0
+    //read all labels in file and set their addresses
     setLabels(lines, 0)
+    //translate assembler
     val instr = parse(lines, List.empty)
+    //run translated program
     val output = start(instr, input, str)
 
     Files.write(Paths.get(log), _user.processor.log.getBytes(StandardCharsets.UTF_8))
@@ -48,17 +64,26 @@ class ISA:
     asSrc.close
     inSrc.close
 
+  /**
+   * Start program execution
+   * @param instr - program instructions
+   * @param input - input buffer
+   * @param str - is the value of the buffer a string
+   * @return
+   */
   private def start(instr: List[Int], input: List[Int], str: Boolean): String =
     _user.device.input = input
     _user.load(instr, addr)
 
     val start = labels("start")
-    ignoring(classOf[HLTException]) {
-      _user.run(start)
-    }
+    ignoring(classOf[HLTException]) { _user.run(start) }
+    val output = _user.device.output
 
-    if (str) _user.device.output.map(i => i.toChar).mkString else _user.device.output.mkString(" ")
+    if (str) output.map(i => i.toChar).mkString else output.mkString(" ")
 
+  /**
+   * Mnemonic to binary format
+   */
   private def toBinary(com: String, arg: String): Int =
     val ad = AddressedCommand.find(com)
     if (ad.isDefined) arg match
@@ -67,11 +92,12 @@ class ISA:
       case relativeRegex(l) => ad.get(labels(l), RELATIVE)
     else throw new IllegalArgumentException(s"The unknown instruction \"$com\"")
 
-
+  /**
+   * Read all labels in file and set their addresses
+   */
   @tailrec
   private def setLabels(lines: List[String], address: Int): Unit =
-    if (lines.nonEmpty) {
-      lines.head match
+    if (lines.nonEmpty) lines.head match
         case addressedCommandRegex(_, org, arg) if org == "ORG" =>
           addr = hex(arg)
           setLabels(lines.tail, addr)
@@ -80,12 +106,13 @@ class ISA:
           setLabels(lines.tail, address + 1)
         case _ =>
           setLabels(lines.tail, address + 1)
-    }
 
+  /**
+   * Translate each instruction
+   */
   @tailrec
   private def parse(lines: List[String], instructions: List[Int]): List[Int] =
-    if (lines.nonEmpty) {
-      lines.head match
+    if (lines.nonEmpty) lines.head match
         case addressedCommandRegex(_, com, arg) if com != "ORG" =>
           parse(lines.tail, instructions :+ toBinary(com, arg))
         case unaddressedCommandOrDataRegex(_, com) =>
@@ -94,7 +121,7 @@ class ISA:
           else if (hexRegex.matches(com)) parse(lines.tail, instructions :+ hex(com))
           else parse(lines.tail, instructions :+ labels(com))
         case _ => parse(lines.tail, instructions)
-    } else instructions
+    else instructions
 
 
 

@@ -34,18 +34,29 @@ class Translator:
   private var program: MutableList[String] = MutableList()
   private var loop = 0
 
+  /**
+   * Compile pseudo-js code to pseudo-assembler code
+   * @param js - js source file
+   * @param as - assembler target file
+   */
   def translate(js: String, as: String): Unit =
+    //source code
     val src = Source.fromFile(js)
     val lines = src.getLines().toList.map(s => s.trim)
 
+    //the label "start" points to the first instruction in the program
     program += label("start", NULL())
     parse(lines)
+    //the HLT instructions stops program
     program += HLT()
     setVariables()
 
     Files.write(Paths.get(as), program.mkString("\n").getBytes(StandardCharsets.UTF_8))
     src.close
 
+  /**
+   * Recursive parsing of each line
+   */
   @tailrec
   private def parse(lines: List[String]): Unit =
     if (lines.nonEmpty) {
@@ -63,7 +74,11 @@ class Translator:
       parse(lines.tail)
     }
 
+  /**
+   * After parsing, we must put all the data at the beginning of the program
+   */
   private def setVariables(): Unit =
+    //Char -> HEX
     def char(c: Char): String = c.toInt.toHexString.toUpperCase
 
     val data: MutableList[String] = MutableList()
@@ -76,54 +91,75 @@ class Translator:
     }
     program = data ++ program
 
+  /**
+   * If argument is number return number otherwise return value from nums map
+   */
   private def nameOrNum(s: String): Int =
     if (isNumber(s)) toNumber(s) else nums(s)
 
+  /**
+   * Calculates math expressions
+   * Used for data initialization
+   */
   private def evaluateExpression(expr: String): Int =
     @tailrec
     def helper(ex: String, mul: Int, acc: Int): Int =
-      val n: String = ex.trim
-      n match
+      ex.trim match
         case expressionRegex(name, sign, tail) =>
           if (sign == "+") helper(tail, 1, acc + mul * nameOrNum(name))
           else helper(tail, -1, acc + mul * nameOrNum(name))
         case x => acc + nameOrNum(x)
-
     helper(expr, 1, 0)
 
+  /**
+   * Compiles expressions like "n++", "n--"
+   */
   private def updateExpression(name: String, operand: String): Unit =
     program += LD(name, ABSOLUTE)
     if (operand == "++") program += INC() else program += DEC()
     program += ST(name, ABSOLUTE)
 
+  /**
+   * Compiles expressions like "a = b"
+   */
   private def changeExpression(name: String, express: String): Unit =
+    //Get mnemonic
     def instr(name: String, plus: Boolean): String =
-      val _type = if (isNumber(name)) DIRECT else ABSOLUTE
-      if (plus) ADD(name, _type) else SUB(name, _type)
+      val addr = if (isNumber(name)) DIRECT else ABSOLUTE
+      if (plus) ADD(name, addr) else SUB(name, addr)
 
     def expression(expr: String): Unit =
       @tailrec
       def helper(ex: String, plus: Boolean): Unit =
-        val n: String = ex.trim
-        n match
+        ex.trim match
           case expressionRegex(name, sign, tail) =>
             program += instr(name, plus)
-            if (sign == "+") helper(tail, true)
-            else helper(tail, false)
+            helper(tail, sign == "+")
           case x => program += instr(x, plus)
-
       helper(expr, true)
 
+    //The expressions don't use the LD command, so we need to clear the AC before running it.
     program += CLA()
+    //Add used ADD, SUB instructions
     expression(express)
+    //Save result
     program += ST(name, ABSOLUTE)
 
+  /**
+   * Int variable initializing
+   */
   private def intVariable(name: String, expr: String): Unit =
     nums(name) = evaluateExpression(expr)
 
+  /**
+   * String variable initializing
+   */
   private def stringVariable(name: String, value: String): Unit =
     strings(name) = value
 
+  /**
+   * Compiles expressions like "while (n)"
+   */
   private def whileLoop(cond: String): Unit =
     loop += 1
     loops.push(loop)
@@ -132,6 +168,9 @@ class Translator:
     program += label(begin, LOOP(cond, ABSOLUTE))
     program += JUMP(end, ABSOLUTE)
 
+  /**
+   * Compiles expressions like "end while"
+   */
   private def whileEnd(): Unit =
     val top = loops.pop()
     val begin = lBegin(top)
@@ -139,7 +178,11 @@ class Translator:
     program += JUMP(begin, ABSOLUTE)
     program += label(end, NULL())
 
+  /**
+   * Compiles expressions like "print(a)"
+   */
   private def printFunction(arg: String): Unit =
+    //Instructions for printing a string using RELATIVE addressing
     def printString(name: String): Unit =
       loop += 1
       val begin = lBegin(loop)
@@ -157,6 +200,9 @@ class Translator:
     if (nums.contains(arg)) program ++= List(LD(arg, ABSOLUTE), OUT())
     else if (strings.contains(arg)) printString(arg)
 
+  /**
+   * Compiles expressions like "read(a)"
+   */
   private def readFunction(arg: String): Unit =
     program += IN()
     program += ST(arg, ABSOLUTE)

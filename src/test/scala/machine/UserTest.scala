@@ -19,7 +19,7 @@ class UserTest extends AnyWordSpec {
       val program = List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 
       user.load(program, 0)
-      val data = (0 to 10).map(user.processor.memory.mem(_))
+      val data = (0 to 10).map(user.processor.mem.mem(_))
       data should equal(program)
     }
 
@@ -61,7 +61,7 @@ class UserTest extends AnyWordSpec {
       user.load(program, 0)
 
       the[HLTException] thrownBy user.run(4)
-      user.processor.memory.mem(x2._2) should equal(13)
+      user.processor.mem.mem(x2._2) should equal(13)
       user.device.output should equal(List(1, 1, 2, 3, 5, 8, 13))
     }
 

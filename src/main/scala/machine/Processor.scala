@@ -8,15 +8,16 @@ import util.Binary.m16
 import scala.annotation.tailrec
 
 private class Processor(device: Device):
-  val memory: Memory = new Memory
+  val mem: Memory = new Memory
   val tg: TactGenerator = new TactGenerator
-  val controlUnit = new ControlUnit(tg, memory, device)
+  val cu = new ControlUnit(tg, mem, device)
 
   def log: String = {
+    //Add missing leading zeros
     @tailrec
     def zeros(s: String): String = if (s.length < 8) zeros("0" + s) else s
 
-    def entry(en: controlUnit.Log): String =
+    def entry(en: cu.Log): String =
       val tact = zeros(en._1.toHexString)
       val data = en._2.map(e => (e._1, zeros(hex(e._2))))
       val addr = en._3.map(e => (e._1, zeros(hex(e._2))))
@@ -26,15 +27,15 @@ private class Processor(device: Device):
     val head = "|  TACT  |   AC   |   DR   |   CR   |   IP   |   AR   |\n"
     val sb = new StringBuilder
     sb.append(head)
-    controlUnit.log.foreach(map => sb.append(entry(map)))
+    cu.log.foreach(map => sb.append(entry(map)))
     sb.toString
   }
 
 
   def startProgram(ip: Int): Unit =
-    controlUnit.freeLog()
+    cu.freeLog()
     device.IO = ip
-    controlUnit.writeIP()
+    cu.writeIP()
     tg.clean()
-    controlUnit.commandFetch()
+    cu.commandFetch()
 
