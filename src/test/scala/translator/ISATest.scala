@@ -2,6 +2,8 @@ package translator
 
 import exception.HLTException
 import machine.Memory
+import org.scalatest.Retries
+import org.scalatest.Retries.{isRetryable, withRetry}
 import org.scalatest.matchers.should.Matchers.*
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -9,8 +11,18 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
 import scala.io.Source
+import org.scalatest.tagobjects.Retryable
 
-class ISATest extends AnyWordSpec {
+class ISATest extends AnyWordSpec with Retries {
+
+  override def withFixture(test: NoArgTest) = {
+    if (isRetryable(test))
+      withRetry {
+        super.withFixture(test)
+      }
+    else
+      super.withFixture(test)
+  }
 
   val as = "./src/test/resources/test.as"
   val in = "./src/test/resources/test.in"
@@ -45,7 +57,7 @@ class ISATest extends AnyWordSpec {
       the[IllegalArgumentException] thrownBy isa(code2)
     }
 
-    "set start address" in {
+    "set start address" taggedAs(Retryable) in {
       val code =
         """
           |x: 5
